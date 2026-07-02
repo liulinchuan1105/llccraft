@@ -40,11 +40,15 @@ jobs:
         run: |
           set -euo pipefail
           npm ci --no-audit --no-fund
-          npm run build
-          test -f build/assets/main.css
+          # 用 if ! 包 npm run build — npm 8+ 包装子 exit 不可靠(可能返回 0 即使失败)
+          if ! npm run build; then
+              echo "::error::npm run build FAILED (see above log for vite/postcss error)"
+              exit 1
+          fi
+          test -f build/assets/main.css || { echo "::error::build/assets/main.css missing after build"; exit 1; }
           BYTES=$(wc -c < build/assets/main.css)
           echo "build OK: $BYTES bytes"
-          [ "$BYTES" -gt 1000 ] || { echo "build artifact too small: $BYTES bytes"; exit 1; }
+          [ "$BYTES" -gt 1000 ] || { echo "::error::build artifact too small: $BYTES bytes (expected > 1 KB)"; exit 1; }
 
       - name: Setup SSH key (Deploy Key, Actions-only)
         env:
@@ -56,10 +60,13 @@ jobs:
           printf '%s\n' "$SSHK" > ~/.ssh/llccraft_deploy
           chmod 600 ~/.ssh/llccraft_deploy
           # test connect(没有任何命令,SSH should reject as command= 强制但不匹配)
-          ssh -p "$ECS_PORT" -i ~/.ssh/llccraft_deploy \
-              -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-              -o BatchMode=yes \
-              "$ECS_USER@$ECS_HOST" true
+          if ! ssh -p "$ECS_PORT" -i ~/.ssh/llccraft_deploy \
+                -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+                -o BatchMode=yes \
+                "$ECS_USER@$ECS_HOST" true; then
+              echo "::error::SSH connect to gitdep@ECS failed"
+              exit 1
+          fi
           echo "SSH + gitdep key verified"
 
       - name: Sync build artifact (rsync via gitdep restricted command=)
@@ -68,9 +75,12 @@ jobs:
           # rsync -e ssh 用 deploy key + 49821 端口
           # gitdep 端 authorized_keys command="...rsync --server ... --delete . /var/www/llccraft/wp-content/themes/llccraft-child/"
           # → gitdep 只能跑这一条 rsync-server 命令,锁死在 theme dir
-          rsync -avz -e "ssh -p $ECS_PORT -i ~/.ssh/llccraft_deploy -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
-              ${{ env.THEME_SRC }}/build/assets/main.css \
-              ${{ env.ECS_USER }}@${{ env.ECS_HOST }}:/var/www/llccraft/wp-content/themes/llccraft-child/build/assets/main.css
+          if ! rsync -avz -e "ssh -p $ECS_PORT -i ~/.ssh/llccraft_deploy -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+                  ${{ env.THEME_SRC }}/build/assets/main.css \
+                  ${{ env.ECS_USER }}@${{ env.ECS_HOST }}:/var/www/llccraft/wp-content/themes/llccraft-child/build/assets/main.css; then
+              echo "::error::rsync failed (check gitdep authorized_keys / theme dir perms)"
+              exit 1
+          fi
           echo "rsync OK: build/main.css deployed to llccraft-child/build/assets/main.css"
 
       - name: Verify HTTP 200 (no silent fail)
