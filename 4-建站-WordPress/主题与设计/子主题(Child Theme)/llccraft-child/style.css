@@ -1,0 +1,26 @@
+/*
+Theme Name: llccraft Child
+Theme URI: https://llccraft.com
+Description: 景德镇瓷器独立站 — 唯一可改主题层（基于 Storefront 父主题）。所有视觉/代码魔改锁死在这里,父主题升级不受影响。
+Author: 邻玖科技
+Author URI: https://llccraft.com
+Template: storefront
+Version: 0.1.0
+Requires at least: 6.0
+Tested up to: 6.5
+Requires PHP: 8.0
+License: GPL-2.0-or-later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: llccraft-child
+Tags: ecommerce, child-theme, porcelain, jingdezhen, handmade
+*/
+
+/* 本文件大部分定制 CSS 留空;
+   视觉定制建议放 functions.php 内联 wp_enqueue_style 引外部 .css(模块化)
+   或者直接在这里写(快速定制)
+*/
+
+body {
+    /* 占位:留店铺整体配色基底(milky white + ink black + accent)给后续定制 */
+    /* background: #fafaf7; */
+}

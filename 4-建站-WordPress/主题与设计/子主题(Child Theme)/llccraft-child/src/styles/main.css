@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* LLCCRAFT · 自建 6 个核心 component class · 中式留白 + 现代轻奢 */
+
+@layer base {
+    body {
+        @apply font-sans text-ink bg-paper antialiased;
+    }
+    h1, h2, h3, h4, .h-serif {
+        @apply font-serif tracking-tight;
+    }
+}
+
+@layer components {
+    /* 1. 主按钮 · 极简黑 + hover 霁红 */
+    .btn-primary {
+        @apply inline-flex items-center justify-center px-8 py-3
+               text-sm font-medium tracking-wider uppercase
+               border border-ink bg-ink text-paper
+               transition-colors duration-300 ease-soft
+               hover:bg-accent hover:border-accent hover:text-paper;
+    }
+
+    /* 2. 产品卡片 · 克制的画廊感 */
+    .product-card {
+        @apply bg-paper transition-shadow duration-300 ease-soft
+               hover:shadow-[0_2px_24px_-12px_rgba(14,14,14,0.18)];
+    }
+    .product-card__price {
+        @apply font-sans text-sm tracking-wide text-ink/80;
+    }
+
+    /* 3. section 上下间距 · 留白黄金比例 */
+    .section-pad {
+        @apply py-16 md:py-24 lg:py-32 px-6 md:px-10
+               max-w-gutter mx-auto w-full;
+    }
+
+    /* 4. hero 边框 · 极细 1px ink */
+    .hero-frame {
+        @apply min-h-[70vh] md:min-h-[80vh] flex flex-col items-center justify-center
+               border-t border-ink px-6;
+    }
+
+    /* 5. 斜体衬线 · 副标题/落款 */
+    .italic-serif {
+        @apply font-serif italic tracking-tight text-ink/90;
+    }
+
+    /* 6. 文本均衡 · 标题换行对齐 */
+    .text-balance {
+        text-wrap: balance;
+    }
+}

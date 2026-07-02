@@ -1,0 +1,17 @@
+# Build artifacts (Vite output)
+node_modules/
+build/
+dist/
+.cache/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

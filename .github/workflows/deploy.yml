@@ -1,0 +1,106 @@
+name: Deploy Theme to ECS
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '4-建站-WordPress/主题与设计/子主题(Child Theme)/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+# Concurrency: 同一时间只允许 1 次部署(simple lock)
+concurrency:
+  group: deploy-to-ecs
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: '4-建站-WordPress/主题与设计/子主题(Child Theme)/package-lock.json'
+
+      - name: Build theme (Vite + Tailwind)
+        working-directory: '4-建站-WordPress/主题与设计/子主题(Child Theme)'
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+          echo "--- build output ---"
+          ls -la build/
+
+      - name: Setup SSH key (Deploy Key)
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.LLCCRAFT_DEPLOY_KEY }}
+
+      - name: rsync theme to ECS via SSH 49821
+        run: |
+          # 只同步 source files(node_modules / build / .git 等排除)
+          # 对端目标路径 = /var/www/llccraft/wp-content/themes/llccraft-child/(已经存在)
+          rsync -avz --delete \
+            --exclude 'node_modules/' \
+            --exclude 'build/' \
+            --exclude '.git/' \
+            --exclude '.DS_Store' \
+            --exclude '*.log' \
+            --exclude '.env*' \
+            -e "ssh -p 49821 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+            '4-建站-WordPress/主题与设计/子主题(Child Theme)/' \
+            'llccraft_admin@${{ secrets.LLCCRAFT_HOST }}:/var/www/llccraft/wp-content/themes/llccraft-child/'
+
+      - name: Build CSS on ECS (because we ship src not built dist)
+        uses: applebanana/ssh-action@v1
+        with:
+          host: ${{ secrets.LLCCRAFT_HOST }}
+          port: 49821
+          username: llccraft_admin
+          command: |
+            set -euo pipefail
+            cd /var/www/llccraft/wp-content/themes/llccraft-child
+            # 确保 Node 22 / npm 在服务器(本机 ECS 是 Ubuntu 22.04 默认没 node)
+            if ! command -v npm >/dev/null 2>&1; then
+              echo "::error::ECS 没装 node/npm,先跑 local-dev/scripts/3-install-lnmp-then-node.sh"
+              exit 2
+            fi
+            if [ ! -f package.json ]; then
+              echo "::error::Theme directory missing package.json — wrong path"
+              exit 3
+            fi
+            npm install --silent --no-audit --no-fund || true
+            npm run build
+            echo "--- after build ---"
+            ls -la build/
+
+      - name: Activate theme via wp-cli (clear cache)
+        uses: applebanana/ssh-action@v1
+        with:
+          host: ${{ secrets.LLCCRAFT_HOST }}
+          port: 49821
+          username: llccraft_admin
+          command: |
+            cd /var/www/llccraft
+            sudo -u www-data wp --allow-root theme activate llccraft-child || true
+            sudo -u www-data wp --allow-root cache flush 2>/dev/null || true
+            echo "--- active theme ---"
+            sudo -u www-data wp --allow-root theme list | head -5
+
+      - name: Verify HTTP 200 + log
+        uses: applebanana/ssh-action@v1
+        with:
+          host: ${{ secrets.LLCCRAFT_HOST }}
+          port: 49821
+          username: llccraft_admin
+          command: |
+            echo "--- HTTP probe ---"
+            curl -sI -H "Host: llccraft.com" http://127.0.0.1/wp-login.php | head -3
+            echo "--- nginx tail ---"
+            sudo tail -3 /var/log/nginx/llccraft-access.log 2>/dev/null || true

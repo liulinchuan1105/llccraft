@@ -1,0 +1,73 @@
+# ============================================================
+# llccraft 瓷器独立站 · 仓库根 .gitignore
+# 创建: 2026-07-01（Task 003 闭环修订，审计员 B 必修 #1）
+# 范围:凭证 / 密钥 / 本地环境 / IDE / OS / WP 上传 / build 缓存
+# 严禁 force-add 被忽略文件(除非明确同意，例如你要示例 git hooks)
+# ============================================================
+
+# === 1. 凭证 + 密钥(最高优先级) ===
+*.pem
+*.key
+*.p12
+*.pfx
+authorized_keys
+known_hosts
+id_rsa*
+id_ed25519*
+id_ecdsa*
+local-dev/.env
+local-dev/.admin-credentials
+.env
+.env.*
+!.env.example   # 模板入 git（但 .env 本体锁住）
+
+# === 2. 日志文件 ===
+*.log
+
+# === 3. WordPress 运行时产物(留给 docker volume,不入 git) ===
+4-建站-WordPress/**/wp-content/uploads/
+4-建站-WordPress/**/wp-content/cache/
+4-建站-WordPress/**/wp-content/upgrade/
+4-建站-WordPress/**/wp-content/backups/
+4-建站-WordPress/**/wp-content/debug.log
+
+# === 4. Docker 容器运行时配置覆盖(本地开发用) ===
+docker-compose.override.yml
+
+# === 5. 临时 / 备份 ===
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+
+# === 6. IDE + 编辑器 ===
+.vscode/
+.idea/
+*.iml
+.project
+.classpath
+.settings/
+
+# === 7. 操作系统杂项 ===
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+ehthumbs_vista.db
+
+# === 8. 通用 build 缓存 ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+node_modules/
+.cache/
+.next/
+dist/
+build/
+
+# === 9. 后续 ECS 上线阶段补充(预占位) ===
+# 阿里云 RAM AccessKey 一旦放到 ECS 上脚本里的,加 .aliyun/credentials
+# Stripe / PayPal webhook secret
+.env.production
