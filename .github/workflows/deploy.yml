@@ -58,7 +58,7 @@ jobs:
             'llccraft_admin@${{ secrets.LLCCRAFT_HOST }}:/var/www/llccraft/wp-content/themes/llccraft-child/'
 
       - name: Build CSS on ECS (because we ship src not built dist)
-        uses: applebanana/ssh-action@v1
+        uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.LLCCRAFT_HOST }}
           port: 49821
@@ -81,7 +81,7 @@ jobs:
             ls -la build/
 
       - name: Activate theme via wp-cli (clear cache)
-        uses: applebanana/ssh-action@v1
+        uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.LLCCRAFT_HOST }}
           port: 49821
@@ -94,7 +94,7 @@ jobs:
             sudo -u www-data wp --allow-root theme list | head -5
 
       - name: Verify HTTP 200 + log
-        uses: applebanana/ssh-action@v1
+        uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.LLCCRAFT_HOST }}
           port: 49821
