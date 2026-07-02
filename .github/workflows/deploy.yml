@@ -41,10 +41,7 @@ jobs:
           set -euo pipefail
           npm ci --no-audit --no-fund
           # 用 if ! 包 npm run build — npm 8+ 包装子 exit 不可靠(可能返回 0 即使失败)
-          if ! npm run build; then
-              echo "::error::npm run build FAILED (see above log for vite/postcss error)"
-              exit 1
-          fi
+          npm run build || { echo "::error::npm run build FAILED (see above log for vite/postcss error)"; exit 1; }
           test -f build/assets/main.css || { echo "::error::build/assets/main.css missing after build"; exit 1; }
           BYTES=$(wc -c < build/assets/main.css)
           echo "build OK: $BYTES bytes"
