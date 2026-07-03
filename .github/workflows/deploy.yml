@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - '4-建站-WordPress/主题与设计/子主题(Child Theme)/**'
+      - '4-建站-WordPress/主题与设计/子主题\(Child Theme\)/**'
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
