@@ -21,7 +21,7 @@ jobs:
       ECS_HOST: ${{ secrets.LLCCRAFT_HOST }}
       ECS_PORT: "49821"
       ECS_USER: gitdep
-      THEME_SRC: '4-建站-WordPress/主题与设计/子主题(Child Theme)/llccraft-child'
+      THEME_SRC: '4-建站-WordPress/主题与设计/子主题\(Child Theme\)/llccraft-child'
 
     steps:
       - name: Checkout
