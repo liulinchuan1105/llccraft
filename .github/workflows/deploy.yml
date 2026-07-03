@@ -57,26 +57,36 @@ jobs:
           set -euo pipefail
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          printf '%s\n' "$SSHK" > ~/.ssh/llccraft_deploy
+          # 写 key — 去掉 trailing newline,然后 printf 加回一行 newline
+          SSHK_NO_NL="${SSHK%$'\n'}"
+          printf '%s\n' "$SSHK_NO_NL" > ~/.ssh/llccraft_deploy
           chmod 600 ~/.ssh/llccraft_deploy
-          # 验证 SSH + key auth + gitdep authorized_keys 的 command= rsync 链路
-          # 重要:gitdep authorized_keys 强制 `command="rsync --server ..."`
-          #       → 任何 SSH 调用都会被替换为 rsync-server,不是 "true"
-          #       所以我们必须用 rsync client 测试(走完整 gitdep 链路)
+          # 诊断输出 — 老板 paste 给我
+          echo "::debug::SSHK env var length: ${#SSHK} bytes"
+          echo "::debug::SSHK_NO_NL length: ${#SSHK_NO_NL} bytes"
+          echo "::debug::key file on disk:"
+          echo "::debug::  size: $(wc -c < ~/.ssh/llccraft_deploy) bytes"
+          echo "::debug::  head: $(head -c 60 ~/.ssh/llccraft_deploy | tr '\n' '|')"
+          echo "::debug::  tail: $(tail -c 50 ~/.ssh/llccraft_deploy | tr '\n' '|')"
+          # 验证 SSH + key + gitdep command=rsync 链路
+          # gitdep authorized_keys 强制 command="rsync --server -logDtpre.iLsfxCIvu ."
+          #   → 任何 SSH 调用都被替换为 rsync-server — 必须用 rsync client 测试
           TEST_FILE=$(mktemp)
           echo "ssh-test-$(date +%s)" > "$TEST_FILE"
+          echo "::debug::Test file: $TEST_FILE ($(wc -c < $TEST_FILE) bytes)"
           if ! rsync -avz -e "ssh -p $ECS_PORT -i ~/.ssh/llccraft_deploy -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
-                "$TEST_FILE" "$ECS_USER@$ECS_HOST:/tmp/ssh-test-write-by-actions"; then
-              echo "::error::rsync auth via gitdep failed (key invalid OR gitdep locked OR command= mismatch)"
+                "$TEST_FILE" "$ECS_USER@$ECS_HOST:/tmp/ssh-test-write-by-actions" 2>&1 | tee /tmp/rsync-test.log; then
+              echo "::error::rsync auth via gitdep failed"
+              echo "::error::rsync output saved to /tmp/rsync-test.log"
               rm -f "$TEST_FILE"
               exit 1
           fi
-          # cleanup 测试文件(用 rsync-over-ssh 的 delete — gitdep command= 强制只能 rsync-server)
+          # cleanup — rsync --delete 同样走 gitdep command=rsync-server
           rsync -avz --delete -e "ssh -p $ECS_PORT -i ~/.ssh/llccraft_deploy -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
               --include="ssh-test-write-by-actions" --exclude="*" \
-              "$ECS_USER@$ECS_HOST:/tmp/" /tmp/cleanup-staging/ || true
+              "$ECS_USER@$ECS_HOST:/tmp/" /tmp/cleanup-staging/ 2>&1 | tail -3 || true
           rm -f "$TEST_FILE"
-          echo "SSH + gitdep key + command=rsync verified"
+          echo "::notice::SSH + gitdep key + command=rsync verified — deploy ready"
 
       - name: Sync build artifact (rsync via gitdep restricted command=)
         run: |
