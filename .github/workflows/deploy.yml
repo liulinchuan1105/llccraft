@@ -54,7 +54,7 @@ jobs:
           set -e
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          printf "%s" "$SSHK" > ~/.ssh/llccraft_deploy
+          printf "%s\n" "$SSHK" > ~/.ssh/llccraft_deploy
           chmod 600 ~/.ssh/llccraft_deploy
           echo "::debug::key size: $(wc -c < ~/.ssh/llccraft_deploy) bytes"
           TEST_FILE=$(mktemp)
