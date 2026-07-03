@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - '4-建站-WordPress/主题与设计/子主题\(Child Theme\)/**'
+      - '4-建站-WordPress/主题与设计/子主题(Child Theme)/**'
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
@@ -21,7 +21,7 @@ jobs:
       ECS_HOST: ${{ secrets.LLCCRAFT_HOST }}
       ECS_PORT: "49821"
       ECS_USER: gitdep
-      THEME_SRC: '4-建站-WordPress/主题与设计/子主题\(Child Theme\)/llccraft-child'
+      THEME_SRC: '4-建站-WordPress/主题与设计/子主题(Child Theme)/llccraft-child'
 
     steps:
       - name: Checkout
@@ -34,9 +34,9 @@ jobs:
           check-latest: false
 
       - name: Build theme
-        working-directory: ${{ env.THEME_SRC }}
         run: |
           set -e
+          cd "$THEME_SRC"
           npm ci --no-audit --no-fund
           if ! npm run build; then
             echo "::error::build failed"
@@ -72,7 +72,7 @@ jobs:
       - name: Sync build artifact
         run: |
           set -e
-          SRC="${THEME_SRC}/build/assets/main.css"
+          SRC="$THEME_SRC/build/assets/main.css"
           DEST="${ECS_USER}@${ECS_HOST}:/var/www/llccraft/wp-content/themes/llccraft-child/build/assets/main.css"
           if ! rsync -avz -e "ssh -p $ECS_PORT -i ~/.ssh/llccraft_deploy -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" "$SRC" "$DEST"; then
             echo "::error::rsync failed"
