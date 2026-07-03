@@ -71,10 +71,10 @@ jobs:
               rm -f "$TEST_FILE"
               exit 1
           fi
-          # cleanup 测试文件
-          ssh -p "$ECS_PORT" -i ~/.ssh/llccraft_deploy \
-              -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-              "$ECS_USER@$ECS_HOST" rm -f /tmp/ssh-test-write-by-actions || true
+          # cleanup 测试文件(用 rsync-over-ssh 的 delete — gitdep command= 强制只能 rsync-server)
+          rsync -avz --delete -e "ssh -p $ECS_PORT -i ~/.ssh/llccraft_deploy -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+              --include="ssh-test-write-by-actions" --exclude="*" \
+              "$ECS_USER@$ECS_HOST:/tmp/" /tmp/cleanup-staging/ || true
           rm -f "$TEST_FILE"
           echo "SSH + gitdep key + command=rsync verified"
 
