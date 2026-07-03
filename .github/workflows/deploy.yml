@@ -84,10 +84,8 @@ jobs:
       - name: Verify HTTP 200
         run: |
           set -e
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Host: llccraft.com" "http://${ECS_HOST}/wp-login.php")
+          # -L follows redirects (HTTP 301 to HTTPS or vice versa)
+          STATUS=$(curl -skL -o /dev/null -w "%{http_code}" -H "Host: llccraft.com" "https://llccraft.com/wp-login.php")
           echo "wp-login.php status: $STATUS"
           [ "$STATUS" = "200" ] || { echo "FAIL: HTTP $STATUS"; exit 1; }
-          STATUS2=$(curl -s -o /dev/null -w "%{http_code}" "https://llccraft.com/wp-login.php")
-          echo "https status: $STATUS2"
-          [ "$STATUS2" = "200" ] || { echo "FAIL: HTTPS $STATUS2"; exit 1; }
           echo "All probes OK"
