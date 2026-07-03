@@ -74,7 +74,8 @@ jobs:
           set -e
           SRC="$THEME_SRC/build/assets/main.css"
           DEST="${ECS_USER}@${ECS_HOST}:/var/www/llccraft/wp-content/themes/llccraft-child/build/assets/main.css"
-          if ! rsync -avz -e "ssh -p $ECS_PORT -i ~/.ssh/llccraft_deploy -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" "$SRC" "$DEST"; then
+          # --mkpath: rsync 3.2+ 自动建多级 dest dir (build/assets)
+          if ! rsync -avz --mkpath -e "ssh -p $ECS_PORT -i ~/.ssh/llccraft_deploy -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" "$SRC" "$DEST"; then
             echo "::error::rsync failed"
             exit 1
           fi
