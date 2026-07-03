@@ -8,7 +8,6 @@ on:
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
-# Concurrency: 同时只允许 1 次 deploy(避免并发锁)
 concurrency:
   group: deploy-to-ecs
   cancel-in-progress: false
@@ -21,96 +20,78 @@ jobs:
     env:
       ECS_HOST: ${{ secrets.LLCCRAFT_HOST }}
       ECS_PORT: '49821'
-      ECS_USER: gitdep   # 强制 actions-only 用户(无 sudo)
+      ECS_USER: gitdep
       THEME_SRC: '4-建站-WordPress/主题与设计/子主题(Child Theme)/llccraft-child'
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node 22 (locked, cache disabled to avoid Chinese-path issues)
+      - name: Setup Node 22
         uses: actions/setup-node@v4
         with:
-          node-version: '22'   # locked
+          node-version: "22"
           check-latest: false
-          # cache 字段不填 — actions/setup-node v4 默认 no cache
-          # 装包在下面 build step 自己跑 npm ci(读 package-lock.json)
-          # 旧坑 cache: 'npm' + cache-dependency-path: <中文 path>
-          #   → 路径在 GitHub Actions runner 内部解析时 UTF-8 → byte 转换异常
 
-      - name: Build theme (Vite + Tailwind) — fail-fast
+      - name: Build theme
         working-directory: ${{ env.THEME_SRC }}
         run: |
-          set -euo pipefail
+          set -e
           npm ci --no-audit --no-fund
-          # 用 if ! 包 npm run build — npm 8+ 包装子 exit 不可靠(可能返回 0 即使失败)
-          npm run build || { echo "::error::npm run build FAILED (see above log for vite/postcss error)"; exit 1; }
-          test -f build/assets/main.css || { echo "::error::build/assets/main.css missing after build"; exit 1; }
+          if ! npm run build; then
+            echo "::error::build failed"
+            exit 1
+          fi
+          test -f build/assets/main.css || { echo "::error::main.css missing"; exit 1; }
           BYTES=$(wc -c < build/assets/main.css)
           echo "build OK: $BYTES bytes"
-          [ "$BYTES" -gt 1000 ] || { echo "::error::build artifact too small: $BYTES bytes (expected > 1 KB)"; exit 1; }
+          [ "$BYTES" -gt 1000 ] || { echo "::error::artifact too small"; exit 1; }
 
-      - name: Setup SSH key + verify (Deploy Key, Actions-only)
+      - name: Setup SSH key + verify
         env:
           SSHK: ${{ secrets.LLCCRAFT_DEPLOY_KEY }}
         run: |
-          set -euo pipefail
+          set -e
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          # 写 key — 去掉 trailing newline,然后 printf 加回一行 newline
-          SSHK_NO_NL="${SSHK%$'\n'}"
-          printf '%s\n' "$SSHK_NO_NL" > ~/.ssh/llccraft_deploy
+          SSHK_NO_NL=$(printf "%s" "$SSHK")
+          printf "%s\n" "$SSHK_NO_NL" > ~/.ssh/llccraft_deploy
           chmod 600 ~/.ssh/llccraft_deploy
-          # 诊断输出 — 老板 paste 给我
-          echo "::debug::SSHK env var length: ${#SSHK} bytes"
-          echo "::debug::SSHK_NO_NL length: ${#SSHK_NO_NL} bytes"
-          echo "::debug::key file on disk:"
-          echo "::debug::  size: $(wc -c < ~/.ssh/llccraft_deploy) bytes"
-          echo "::debug::  head: $(head -c 60 ~/.ssh/llccraft_deploy | tr '\n' '|')"
-          echo "::debug::  tail: $(tail -c 50 ~/.ssh/llccraft_deploy | tr '\n' '|')"
-          # 验证 SSH + key + gitdep command=rsync 链路
-          # gitdep authorized_keys 强制 command="rsync --server -logDtpre.iLsfxCIvu ."
-          #   → 任何 SSH 调用都被替换为 rsync-server — 必须用 rsync client 测试
+          echo "::debug::key size: $(wc -c < ~/.ssh/llccraft_deploy) bytes"
+          echo "::debug::key head: $(head -c 60 ~/.ssh/llccraft_deploy | tr "\n" "|")"
           TEST_FILE=$(mktemp)
           echo "ssh-test-$(date +%s)" > "$TEST_FILE"
-          echo "::debug::Test file: $TEST_FILE ($(wc -c < $TEST_FILE) bytes)"
           if ! rsync -avz -e "ssh -p $ECS_PORT -i ~/.ssh/llccraft_deploy -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
-                "$TEST_FILE" "${ECS_USER}@${ECS_HOST}:/tmp/ssh-test-write-by-actions" 2>&1 | tee /tmp/rsync-test.log; then
-              echo "::error::rsync auth via gitdep failed"
-              echo "::error::rsync output saved to /tmp/rsync-test.log"
-              rm -f "$TEST_FILE"
-              exit 1
+            "$TEST_FILE" "${ECS_USER}@${ECS_HOST}:/tmp/ssh-test-write-by-actions" 2>&1 | tee /tmp/rsync-test.log; then
+            echo "::error::rsync auth failed"
+            cat /tmp/rsync-test.log
+            rm -f "$TEST_FILE"
+            exit 1
           fi
-          # cleanup — rsync --delete 同样走 gitdep command=rsync-server
           rsync -avz --delete -e "ssh -p $ECS_PORT -i ~/.ssh/llccraft_deploy -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
-              --include="ssh-test-write-by-actions" --exclude="*" \
-              "${ECS_USER}@${ECS_HOST}:/tmp/" /tmp/cleanup-staging/ 2>&1 | tail -3 || true
+            --include="ssh-test-write-by-actions" --exclude="*" \
+            "${ECS_USER}@${ECS_HOST}:/tmp/" /tmp/cleanup-staging/ 2>&1 | tail -3 || true
           rm -f "$TEST_FILE"
-          echo "::notice::SSH + gitdep key + command=rsync verified — deploy ready"
+          echo "::notice::SSH + gitdep key + rsync verified"
 
-      - name: Sync build artifact (rsync via gitdep restricted command=)
+      - name: Sync build artifact
         run: |
-          set -euo pipefail
-          # rsync -e ssh 用 deploy key + 49821 端口
-          # gitdep 端 authorized_keys command="/usr/local/bin/gitdep-rsync-wrapper"
-          # → wrapper 仅接受 dest 在 theme dir 或 /tmp/ssh-test-write-by-actions
+          set -e
           if ! rsync -avz -e "ssh -p $ECS_PORT -i ~/.ssh/llccraft_deploy -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
-                  "${THEME_SRC}/build/assets/main.css" \
-                  "${ECS_USER}@${ECS_HOST}:/var/www/llccraft/wp-content/themes/llccraft-child/build/assets/main.css"; then
-              echo "::error::rsync failed (check gitdep wrapper / theme dir perms)"
-              exit 1
+            "${THEME_SRC}/build/assets/main.css" \
+            "${ECS_USER}@${ECS_HOST}:/var/www/llccraft/wp-content/themes/llccraft-child/build/assets/main.css"; then
+            echo "::error::rsync failed"
+            exit 1
           fi
-          echo "rsync OK: build/main.css deployed to llccraft-child/build/assets/main.css"
+          echo "rsync OK"
 
-      - name: Verify HTTP 200 (no silent fail)
+      - name: Verify HTTP 200
         run: |
-          set -euo pipefail
+          set -e
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Host: llccraft.com" "http://${ECS_HOST}/wp-login.php")
           echo "wp-login.php status: $STATUS"
           [ "$STATUS" = "200" ] || { echo "FAIL: HTTP $STATUS"; exit 1; }
-
           STATUS2=$(curl -s -o /dev/null -w "%{http_code}" "https://llccraft.com/wp-login.php")
-          echo "https llccraft.com/wp-login.php status: $STATUS2"
+          echo "https status: $STATUS2"
           [ "$STATUS2" = "200" ] || { echo "FAIL: HTTPS $STATUS2"; exit 1; }
-
           echo "All probes OK"
