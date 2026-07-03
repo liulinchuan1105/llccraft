@@ -19,7 +19,7 @@ jobs:
 
     env:
       ECS_HOST: ${{ secrets.LLCCRAFT_HOST }}
-      ECS_PORT: '49821'
+      ECS_PORT: "49821"
       ECS_USER: gitdep
       THEME_SRC: '4-建站-WordPress/主题与设计/子主题(Child Theme)/llccraft-child'
 
@@ -47,39 +47,34 @@ jobs:
           echo "build OK: $BYTES bytes"
           [ "$BYTES" -gt 1000 ] || { echo "::error::artifact too small"; exit 1; }
 
-      - name: Setup SSH key + verify
+      - name: Setup SSH key and verify
         env:
           SSHK: ${{ secrets.LLCCRAFT_DEPLOY_KEY }}
         run: |
           set -e
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          SSHK_NO_NL=$(printf "%s" "$SSHK")
-          printf "%s\n" "$SSHK_NO_NL" > ~/.ssh/llccraft_deploy
+          printf "%s" "$SSHK" > ~/.ssh/llccraft_deploy
           chmod 600 ~/.ssh/llccraft_deploy
           echo "::debug::key size: $(wc -c < ~/.ssh/llccraft_deploy) bytes"
-          echo "::debug::key head: $(head -c 60 ~/.ssh/llccraft_deploy | tr "\n" "|")"
           TEST_FILE=$(mktemp)
-          echo "ssh-test-$(date +%s)" > "$TEST_FILE"
-          if ! rsync -avz -e "ssh -p $ECS_PORT -i ~/.ssh/llccraft_deploy -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
-            "$TEST_FILE" "${ECS_USER}@${ECS_HOST}:/tmp/ssh-test-write-by-actions" 2>&1 | tee /tmp/rsync-test.log; then
+          echo "test-$(date +%s)" > "$TEST_FILE"
+          if ! rsync -avz -e "ssh -p $ECS_PORT -i ~/.ssh/llccraft_deploy -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" "$TEST_FILE" "${ECS_USER}@${ECS_HOST}:/tmp/ssh-test-write-by-actions" 2>&1 | tee /tmp/rsync-test.log; then
             echo "::error::rsync auth failed"
             cat /tmp/rsync-test.log
             rm -f "$TEST_FILE"
             exit 1
           fi
-          rsync -avz --delete -e "ssh -p $ECS_PORT -i ~/.ssh/llccraft_deploy -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
-            --include="ssh-test-write-by-actions" --exclude="*" \
-            "${ECS_USER}@${ECS_HOST}:/tmp/" /tmp/cleanup-staging/ 2>&1 | tail -3 || true
+          rsync -avz --delete -e "ssh -p $ECS_PORT -i ~/.ssh/llccraft_deploy -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --include="ssh-test-write-by-actions" --exclude="*" "${ECS_USER}@${ECS_HOST}:/tmp/" /tmp/cleanup-staging/ 2>&1 | tail -3 || true
           rm -f "$TEST_FILE"
           echo "::notice::SSH + gitdep key + rsync verified"
 
       - name: Sync build artifact
         run: |
           set -e
-          if ! rsync -avz -e "ssh -p $ECS_PORT -i ~/.ssh/llccraft_deploy -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
-            "${THEME_SRC}/build/assets/main.css" \
-            "${ECS_USER}@${ECS_HOST}:/var/www/llccraft/wp-content/themes/llccraft-child/build/assets/main.css"; then
+          SRC="${THEME_SRC}/build/assets/main.css"
+          DEST="${ECS_USER}@${ECS_HOST}:/var/www/llccraft/wp-content/themes/llccraft-child/build/assets/main.css"
+          if ! rsync -avz -e "ssh -p $ECS_PORT -i ~/.ssh/llccraft_deploy -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" "$SRC" "$DEST"; then
             echo "::error::rsync failed"
             exit 1
           fi
