@@ -28,13 +28,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node 22 (locked, no cache to avoid cache-dependency-path Chinese path issues)
+      - name: Setup Node 22 (locked, cache disabled to avoid Chinese-path issues)
         uses: actions/setup-node@v4
         with:
           node-version: '22'   # locked
           check-latest: false
-          cache: 'npm'         # 启用 npm cache
-          cache-dependency-path: 4-建站-WordPress/主题与设计/子主题(Child Theme)/llccraft-child/package-lock.json  # 显式路径,避 runner.workspace 解析
+          # cache 字段不填 — actions/setup-node v4 默认 no cache
+          # 装包在下面 build step 自己跑 npm ci(读 package-lock.json)
+          # 旧坑 cache: 'npm' + cache-dependency-path: <中文 path>
+          #   → 路径在 GitHub Actions runner 内部解析时 UTF-8 → byte 转换异常
 
       - name: Build theme (Vite + Tailwind) — fail-fast
         working-directory: ${{ env.THEME_SRC }}
