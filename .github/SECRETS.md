@@ -79,3 +79,30 @@ ssh -i ~/.ssh/llccraft_deploy_ed25519 -p 49821 llccraft_admin@8.219.190.222 'ech
 ## 更新记录
 
 - 2026-07-02 Phase 2 v0.1 决定:Actions 用 applebanana/ssh-action + webfactory/ssh-agent
+
+
+## 🆕 v10 wrapper script(gitdep-rsync-wrapper)
+
+v10 修了 v8 rsync protocol negotiation bug — `command="rsync --server ..."` 写死 flags 阻断了 client 端的 compress algo 协商。
+
+**修法**:在 ECS 上写 `/usr/local/bin/gitdep-rsync-wrapper`,`authorized_keys` 改 `command="/usr/local/bin/gitdep-rsync-wrapper"`:
+- Wrapper 接受 `SSH_ORIGINAL_COMMAND` env var
+- Reject anything not starting with `rsync`
+- Reject shell metachars (`;` `` ` `` `&` `|` etc)
+- 提取 dest path(最后一个 token),lock 到 `/var/www/llccraft/wp-content/themes/llccraft-child/`
+- Reject path traversal(`..`)
+- Pass through 完整 client args(让 rsync client-server negotiation transparent)
+
+**安全 lock**:
+- gitdep 只能调 rsync(不是 generic shell)
+- dest 必须在 theme dir 下(不是 `/etc/` 或别的)
+- 不接受 `;` `` ` `` `&` shell escape
+
+**verify**:
+```bash
+$ sudo cat /home/gitdep/.ssh/authorized_keys
+command="/usr/local/bin/gitdep-rsync-wrapper",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty ssh-ed25519 ...
+
+$ sudo ls -la /usr/local/bin/gitdep-rsync-wrapper
+-rwxr-xr-x 1 root root 1665 Jul  3 11:52 /usr/local/bin/gitdep-rsync-wrapper
+```
