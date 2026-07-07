@@ -1,0 +1,80 @@
+{
+  "version": "v1.0-LOCKED",
+  "lock_date": "2026-07-05",
+  "patch_version": "v0.3-in-progress",
+  "color_strategy": {
+    "level": "committed-light-dominant",
+    "rationale": "Eskenazi/Marchant/J.J. Lally/Kaikodo all light-dominant; ceramics show true glaze color on light bg",
+    "surface_pct": 70,
+    "surface_warm_pct": "8-12",
+    "ink_body_pct": "5-8 (section accent only)",
+    "accent_jihong_pct": "≤5",
+    "accent_glaze_pct": "≤2"
+  },
+  "tokens": {
+    "source_of_truth": ":root { --xxx } in resources/css/tokens.css",
+    "ssot_rule": "Tailwind + Figma + CSS-in-JS all reference via var(--xxx); no hardcoded OKLCH/hex outside :root",
+    "list": [
+      {"name": "--ink-body", "oklch": "oklch(0.14 0.012 28)", "hex_equiv": "#1a1614"},
+      {"name": "--surface", "oklch": "oklch(0.97 0 0)", "hex_equiv": "#f7f7f7"},
+      {"name": "--surface-warm", "oklch": "oklch(0.95 0.006 28)", "hex_equiv": "#efece8"},
+      {"name": "--ink-text", "oklch": "oklch(0.18 0.010 28)", "hex_equiv": "#2b2622"},
+      {"name": "--ink-soft", "oklch": "oklch(0.42 0.012 28)", "hex_equiv": "#6b625b"},
+      {"name": "--ink-mute", "oklch": "oklch(0.62 0.008 28)", "hex_equiv": "#9a928b"},
+      {"name": "--accent-jihong", "oklch": "oklch(0.42 0.165 27)", "hex_equiv": "#a8323f"},
+      {"name": "--accent-ru", "oklch": "oklch(0.78 0.045 195)", "hex_equiv": "#c4dad8"},
+      {"name": "--accent-qing", "oklch": "oklch(0.45 0.110 260)", "hex_equiv": "#3a5b8a"},
+      {"name": "--rule", "oklch": "oklch(0.85 0.005 28)", "hex_equiv": "#d8d3cd"}
+    ]
+  },
+  "drenched_chapter_cover_rule": {
+    "type": "theme-glaze-locked",
+    "mechanism": "WP custom field chapter_drenched_color (enum), template reads field",
+    "rule": "Each P-03 chapter frontmatter explicitly assigns drenched color tied to glaze semantics; no random, no time-based, no per-visit variation",
+    "examples": [
+      {"chapter": "天青·雨过", "drenched": "--accent-jihong", "rationale": "雨过天青的反差意象(暖红冲击冷青)"},
+      {"chapter": "青花·海东青", "drenched": "--ink-body", "rationale": "海东青(猎鹰)的肃杀"},
+      {"chapter": "鸟杯·霜月", "drenched": "--accent-ru", "rationale": "霜月冷调"}
+    ]
+  },
+  "typography": {
+    "english_display": "Cormorant Garamond",
+    "english_body": "Inter",
+    "chinese_display": "Source Han Serif SC Heavy/800 (≥96px + weight 800 for chapter covers)",
+    "chinese_body": "Source Han Sans SC Regular",
+    "hero_max": "5.5rem (6rem hard limit, 8px safety margin)",
+    "chinese_display_max": "6rem (no margin; grid + word-break controls overflow)",
+    "tracking_floor_display": "-0.04em",
+    "body_line_width": "65ch"
+  },
+  "component_rules": {
+    "card_radius_max": "12px",
+    "shadow_max_blur": "8px",
+    "ghost_card_banned": true,
+    "side_stripe_borders_banned": true,
+    "glassmorphism_exception": "only piece-lightbox + detection video backdrop; never banner/promo/card"
+  },
+  "motion": {
+    "easing": ["ease-out-quart", "ease-out-expo"],
+    "banned": ["bounce", "elastic", "spring"],
+    "reveal_default_visible": true,
+    "reveal_animation": "scroll-in opacity + micro transform (8-16px Y)",
+    "no_class_triggered_visibility": true,
+    "reduced_motion_mandatory": true
+  },
+  "z_index_scale": {
+    "base": 0,
+    "dropdown": 10,
+    "sticky": 20,
+    "fixed": 25,
+    "modal-backdrop": 30,
+    "modal": 40,
+    "toast": 50,
+    "tooltip": 60,
+    "cursor": 70,
+    "region-focus": 75,
+    "skiplink": 80,
+    "skiplink_wcag_ref": "WCAG 2.4.1 Bypass Blocks"
+  },
+  "anti_patterns_count": 25
+}

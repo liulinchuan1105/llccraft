@@ -1,0 +1,197 @@
+/* ============================================================================
+ * LLCCRAFT Design Tokens  --  v0.4 战略纠偏 · Style Discovery 阶段
+ * --------------------------------------------------------------------------
+ *  v0.3 状态(07-05 锁定):完整 OKLCH token + 字体 + 间距 + 圆角 + z-index + 动效,
+ *  B 多次 APPROVED 全部通过,留档 .impeccable/snapshots/v0.3-b-audit.md
+ *
+ *  v0.4 状态(07-06 战略纠偏):
+ *    -- 工程结构(分块 / 注释 / SSOT 模式 / 跨风格强制规则)保留
+ *    -- 具体视觉 token 值全部作废,等 CEO URL 案例反推重定
+ *    -- 跨风格保留:reduced-motion / .skiplink / focus-visible / z-index skiplink 80
+ *       / region-focus 75 / w-prose 65ch(Impeccable 行宽硬限)
+ *    -- 占位符策略:所有视觉值用 `/* TODO [Style Discovery] */` 标注,fallback
+ *       到中性 CSS 值(transparent / 0 / inherit),保证工程可编译、视觉中性
+ *
+ *  Style Discovery 阶段产出:视觉宪法 v0.1 -> 替换本文件占位符 -> 提交 B 复审
+ *  -> CEO 拍板 -> 进入 P-01~P-11
+ *
+ *  Constitution : Impeccable SKILL.src.md  +  WCAG 2.1 AA  +  v19 CI/CD
+ *  Encoding     : pure ASCII + LF (v19 deployment iron rule)
+ * ========================================================================== */
+
+/* --------------------------------------------------------------------------
+ *  COLOR  --  10 tokens, all OKLCH (per DESIGN.md S1.3 + v0.4 hold)
+ *  v0.4:具体值作废,等 Style Discovery 重定
+ * -------------------------------------------------------------------------- */
+:root {
+  /* ink scale : body / text / soft / mute */
+  --ink-body:        transparent;   /* TODO [Style Discovery] v0.3: oklch(0.14 0.012 28) #1a1614  section accent 5-8% */
+  --ink-text:        transparent;   /* TODO [Style Discovery] v0.3: oklch(0.18 0.010 28) #2b2622  primary text */
+  --ink-soft:        transparent;   /* TODO [Style Discovery] v0.3: oklch(0.42 0.012 28) #6b625b  secondary text */
+  --ink-mute:        transparent;   /* TODO [Style Discovery] v0.3: oklch(0.62 0.008 28) #9a928b  caption / meta */
+
+  /* surface scale : dominant light background system */
+  --surface:         transparent;   /* TODO [Style Discovery] v0.3: oklch(0.97 0 0) #f7f7f7  body bg ~70% */
+  --surface-warm:    transparent;   /* TODO [Style Discovery] v0.3: oklch(0.95 0.006 28) #efece8  secondary card */
+  --rule:            transparent;   /* TODO [Style Discovery] v0.3: oklch(0.85 0.005 28) #d8d3cd  hairline divider */
+
+  /* accent : brand signal -- restricted use only */
+  --accent-jihong:   transparent;   /* TODO [Style Discovery] v0.3: oklch(0.42 0.165 27) #a8323f  ji-hong <=5% */
+  --accent-ru:       transparent;   /* TODO [Style Discovery] v0.3: oklch(0.78 0.045 195) #c4dad8  ru-yao celadon */
+  --accent-qing:     transparent;   /* TODO [Style Discovery] v0.3: oklch(0.45 0.110 260) #3a5b8a  qing-hua cobalt */
+}
+
+/* --------------------------------------------------------------------------
+ *  TYPOGRAPHY  --  font families + fluid type scale
+ *  v0.4:具体字体名 / clamp() 值作废,等 Style Discovery 重定
+ * -------------------------------------------------------------------------- */
+:root {
+  /* font family stacks -- v0.4 hold */
+  --font-display:    inherit;       /* TODO [Style Discovery] v0.3: "Cormorant Garamond", "EB Garamond", Georgia, serif */
+  --font-body:       inherit;       /* TODO [Style Discovery] v0.3: "Inter", "Noto Sans SC", system-ui, -apple-system, sans-serif */
+  --font-quote:      inherit;       /* TODO [Style Discovery] v0.3: "Cormorant Garamond", "Noto Serif SC", Georgia, serif */
+  --font-cn-display: inherit;       /* TODO [Style Discovery] v0.3: "Noto Serif SC", "Source Han Serif SC", "Songti SC", serif */
+  --font-cn-body:    inherit;       /* TODO [Style Discovery] v0.3: "Noto Sans SC", "Source Han Sans SC", "PingFang SC", sans-serif */
+  --font-mono:       inherit;       /* TODO [Style Discovery] v0.3: "JetBrains Mono", ui-monospace, "Courier New", monospace */
+
+  /* fluid type scale -- v0.4 hold */
+  --text-display-xl:    0;          /* TODO [Style Discovery] v0.3: clamp(3rem, 4vw + 1rem, 5.5rem) */
+  --text-display-cn-l:  0;          /* TODO [Style Discovery] v0.3: clamp(3.5rem, 4.5vw + 1rem, 6rem) */
+  --text-display-l:     0;          /* TODO [Style Discovery] v0.3: clamp(2.25rem, 2.5vw + 1rem, 4rem) */
+  --text-display-m:     0;          /* TODO [Style Discovery] v0.3: clamp(1.75rem, 1.5vw + 1rem, 2.75rem) */
+  --text-heading-l:     0;          /* TODO [Style Discovery] v0.3: clamp(1.5rem, 1vw + 1rem, 2rem) */
+  --text-heading-m:     0;          /* TODO [Style Discovery] v0.3: 1.25rem */
+  --text-body-l:        0;          /* TODO [Style Discovery] v0.3: 1.125rem */
+  --text-body:          0;          /* TODO [Style Discovery] v0.3: 1rem */
+  --text-body-s:        0;          /* TODO [Style Discovery] v0.3: 0.9375rem */
+  --text-caption:       0;          /* TODO [Style Discovery] v0.3: 0.8125rem */
+  --text-eyebrow:       0;          /* TODO [Style Discovery] v0.3: 0.75rem */
+
+  /* line-height + tracking -- v0.4 hold */
+  --leading-prose:      0;          /* TODO [Style Discovery] v0.3: 1.7 */
+  --leading-ui:         0;          /* TODO [Style Discovery] v0.3: 1.5 */
+  --leading-display:    0;          /* TODO [Style Discovery] v0.3: 1.05 */
+  --tracking-display-xl:  0;        /* TODO [Style Discovery] v0.3: -0.035em */
+  --tracking-display-l:   0;        /* TODO [Style Discovery] v0.3: -0.025em */
+  --tracking-display-m:   0;        /* TODO [Style Discovery] v0.3: -0.02em */
+  --tracking-heading-l:   0;        /* TODO [Style Discovery] v0.3: -0.015em */
+  --tracking-heading-m:   0;        /* TODO [Style Discovery] v0.3: -0.01em */
+  --tracking-body:        0;        /* TODO [Style Discovery] v0.3: 0em */
+  --tracking-caption:     0;        /* TODO [Style Discovery] v0.3: 0.02em */
+  --tracking-eyebrow:     0;        /* TODO [Style Discovery] v0.3: 0.18em */
+}
+
+/* --------------------------------------------------------------------------
+ *  SPACING  --  4px base, 10 steps (DESIGN.md S3.1)
+ *  v0.4:具体值作废,等 Style Discovery 重定
+ * -------------------------------------------------------------------------- */
+:root {
+  --space-1:   0;   /* TODO [Style Discovery] v0.3: 4px */
+  --space-2:   0;   /* TODO [Style Discovery] v0.3: 8px */
+  --space-3:   0;   /* TODO [Style Discovery] v0.3: 12px */
+  --space-4:   0;   /* TODO [Style Discovery] v0.3: 16px */
+  --space-6:   0;   /* TODO [Style Discovery] v0.3: 24px */
+  --space-8:   0;   /* TODO [Style Discovery] v0.3: 32px */
+  --space-12:  0;   /* TODO [Style Discovery] v0.3: 48px */
+  --space-16:  0;   /* TODO [Style Discovery] v0.3: 64px */
+  --space-24:  0;   /* TODO [Style Discovery] v0.3: 96px */
+  --space-32:  0;   /* TODO [Style Discovery] v0.3: 128px */
+}
+
+/* --------------------------------------------------------------------------
+ *  CONTAINER WIDTHS  --  prose locked at 65ch (Impeccable S3.2 hard limit)
+ *  v0.4:w-prose 65ch 跨风格保留(Impeccable 硬限),其余 hold
+ * -------------------------------------------------------------------------- */
+:root {
+  --w-prose:    65ch;       /* [LOCKED] Impeccable S3.2 hard limit,跨风格强制 */
+  --w-narrow:   0;          /* TODO [Style Discovery] v0.3: 720px */
+  --w-default:  0;          /* TODO [Style Discovery] v0.3: 1080px */
+  --w-wide:     0;          /* TODO [Style Discovery] v0.3: 1320px */
+  --w-bleed:    0;          /* TODO [Style Discovery] v0.3: 100vw */
+}
+
+/* --------------------------------------------------------------------------
+ *  BORDER RADIUS  --  v0.4 hold (Impeccable S4.1 hard limit 24px 仍生效)
+ * -------------------------------------------------------------------------- */
+:root {
+  --radius-none: 0;         /* [LOCKED] zero radius,跨风格保留 */
+  --radius-sm:   0;         /* TODO [Style Discovery] v0.3: 2px */
+  --radius-md:   0;         /* TODO [Style Discovery] v0.3: 6px */
+  --radius-lg:   0;         /* TODO [Style Discovery] v0.3: 12px */
+  --radius-pill: 0;         /* TODO [Style Discovery] v0.3: 999px */
+}
+
+/* --------------------------------------------------------------------------
+ *  Z-INDEX SCALE  --  semantic  (DESIGN.md S6 + a11y skiplink WCAG 2.4.1)
+ *  v0.4:skiplink 80 + region-focus 75 跨风格强制保留(Impeccable + WCAG),
+ *       其余 hold
+ * -------------------------------------------------------------------------- */
+:root {
+  --z-base:           0;   /* TODO [Style Discovery] v0.3: 0 */
+  --z-dropdown:       0;   /* TODO [Style Discovery] v0.3: 10 */
+  --z-sticky:         0;   /* TODO [Style Discovery] v0.3: 20 */
+  --z-fixed:          0;   /* TODO [Style Discovery] v0.3: 25 */
+  --z-modal-backdrop: 0;   /* TODO [Style Discovery] v0.3: 30 */
+  --z-modal:          0;   /* TODO [Style Discovery] v0.3: 40 */
+  --z-toast:          0;   /* TODO [Style Discovery] v0.3: 50 */
+  --z-tooltip:        0;   /* TODO [Style Discovery] v0.3: 60 */
+  --z-cursor:         0;   /* TODO [Style Discovery] v0.3: 70 */
+  --z-region-focus:  75;   /* [LOCKED] WCAG 2.4.7 跨风格强制 */
+  --z-skiplink:      80;   /* [LOCKED] WCAG 2.4.1 Bypass Blocks 跨风格强制 */
+}
+
+/* --------------------------------------------------------------------------
+ *  MOTION  --  duration + easing  (DESIGN.md S5.1, S5.2, S5.4)
+ *  v0.4:具体值 hold,但 reduced-motion 媒体查询跨风格强制
+ * -------------------------------------------------------------------------- */
+:root {
+  --dur-fast:    0ms;       /* TODO [Style Discovery] v0.3: 160ms */
+  --dur-base:    0ms;       /* TODO [Style Discovery] v0.3: 240ms */
+  --dur-slow:    0ms;       /* TODO [Style Discovery] v0.3: 400ms */
+  --dur-cinema:  0ms;       /* TODO [Style Discovery] v0.3: 800ms */
+  --dur-reveal:  0ms;       /* TODO [Style Discovery] v0.3: 600ms */
+  --ease-out-quart: linear; /* TODO [Style Discovery] v0.3: cubic-bezier(0.25, 1, 0.5, 1) */
+  --ease-out-expo:  linear; /* TODO [Style Discovery] v0.3: cubic-bezier(0.16, 1, 0.3, 1) */
+}
+
+/* --------------------------------------------------------------------------
+ *  GLOBAL RESET BASELINE  --  cross-style retained
+ * -------------------------------------------------------------------------- */
+:root {
+  --bs-gutter-x: 0;         /* TODO [Style Discovery] v0.3: var(--space-6) */
+  --bs-gutter-y: 0;         /* TODO [Style Discovery] v0.3: var(--space-6) */
+}
+
+/* --------------------------------------------------------------------------
+ *  A11Y skiplink baseline  --  [LOCKED] cross-style (WCAG 2.4.1)
+ *  v0.4:此块跨风格强制保留,具体 padding 引用 var() 自动跟 token 走
+ * -------------------------------------------------------------------------- */
+.skiplink {
+  position: fixed;
+  top: -100px;
+  left: var(--space-3);
+  z-index: var(--z-skiplink);
+  padding: var(--space-2) var(--space-6);
+  background: var(--ink-body);
+  color: var(--surface);
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  border-radius: var(--radius-sm);
+  transition: top var(--dur-base) var(--ease-out-expo);
+}
+.skiplink:focus { top: var(--space-3); }
+
+/* --------------------------------------------------------------------------
+ *  Reduced motion : hard kill  --  [LOCKED] cross-style (Impeccable + WCAG 2.3.3)
+ *  v0.4:此块跨风格强制保留,任何风格都必须遵守
+ * -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

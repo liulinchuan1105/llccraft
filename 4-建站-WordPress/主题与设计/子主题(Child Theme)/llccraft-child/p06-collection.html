@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLCCRAFT · P-06 Collection · v1.0.0</title>
+<meta name="description" content="LLCCRAFT P-06 Collection hub. v1.0.0. Gallery grid + sticky filter + anti-nonsense cards. Inherits P-01 v0.4.1.6 (Phase 3.5 chassis).">
+
+<!--
+  ============================================================================
+  P-06 Collection · v1.0.0 · PHASE 4 (treasure-hunting hub)
+  ============================================================================
+  Inherits from P-01 v0.4.1.6 (LOCKED + Phase 3.5 patch):
+    - Helvetica Regular @font-face (5 formats, ACTIVE)
+    - Global Sticky Header (Phase 3.5 chassis) — fluid glass + scroll dir
+    - Impeccable 宪法 :  skiplink / focus-visible / reduced-motion
+    - WCAG 2.1 AA  :  contrast / keyboard / aria
+    - Lumina 14-line CSS  -  footer verbatim
+  New for P-06 (寻宝中枢降维打击):
+    [GR]  Gallery grid  -  4-col (1:1 squares, 64px gap) - 3D dimensional strike
+    [SF]  Sticky filter  -  horizontal text labels,  no left sidebar
+    [AN]  Anti-nonsense card  -  name + kiln + price only
+                                (NO add-to-cart / NO rating / NO sales)
+    [TL]  Tap-to-PDP  -  entire card is a link to p02-pdp.html
+    [WB]  Wide breathing  -  1600px max gallery container, 160px footer pad
+  ============================================================================
+-->
+
+<!-- Tailwind Play CDN : self-contained skeleton render -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          'gallery':  'oklch(0.97 0.012 90)',
+          'ink':      'oklch(0.20 0.010 28)',
+          'ink-soft': 'oklch(0.55 0.008 28)',
+          'rule':     'oklch(0.88 0.005 28)',
+        },
+        fontFamily: {
+          serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+          sans:  ['"Helvetica Regular"', '"Inter"', 'system-ui', 'sans-serif'],
+        },
+        maxWidth: { 'wide': '1320px', 'gallery': '1600px' },
+      }
+    }
+  }
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  /* ==========================================================================
+     P-06 Collection v1.0.0  -  Gallery catalog hub
+     ========================================================================== */
+
+  /* ---------- F1 : Helvetica Regular @font-face (inherited, ACTIVE) ---------- */
+  @font-face {
+    font-family: "Helvetica Regular";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.eot");
+    src: url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.eot?#iefix")format("embedded-opentype"),
+         url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.woff2")format("woff2"),
+         url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.woff")format("woff"),
+         url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.ttf")format("truetype"),
+         url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.svg#Helvetica Regular")format("svg");
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: oklch(0.97 0.012 90);
+    color: oklch(0.20 0.010 28);
+    font-family: "Helvetica Regular", "Inter", system-ui, -apple-system, sans-serif;
+    font-size: 16px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- A11Y ---------- */
+  .skiplink {
+    position: fixed; top: -100px; left: 12px; z-index: 200;
+    padding: 8px 24px; background: #000; color: #fff;
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    border-radius: 2px; text-decoration: none; font-weight: 500;
+    transition: top 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .skiplink:focus { top: 12px; }
+  :focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ====================================================================
+     1.  Global Sticky Header  (Phase 3.5 chassis, reused)
+     ==================================================================== */
+  .global-header {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition: background 320ms ease, backdrop-filter 320ms ease,
+                border-color 320ms ease;
+  }
+  .global-header.is-scrolled-down {
+    background: rgba(15, 15, 15, 0.5);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+  .global-header.is-scrolled-up {
+    background: transparent;
+    backdrop-filter: none;
+    border-bottom-color: transparent;
+  }
+  .global-header__inner {
+    max-width: 1320px; margin: 0 auto;
+    padding: 18px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 32px;
+  }
+  .global-header__brand {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 22px; font-weight: 500;
+    color: #fff; text-decoration: none;
+    letter-spacing: -0.005em; flex-shrink: 0;
+  }
+  .global-header__actions { display: flex; align-items: center; gap: 24px; }
+  .global-header__lang { position: relative; }
+  .global-header__lang-btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: transparent; border: none; padding: 6px 8px;
+    color: #fff; cursor: pointer;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 12px; letter-spacing: 0.05em;
+    border-radius: 4px; transition: background 200ms ease;
+  }
+  .global-header__lang-btn:hover { background: rgba(255, 255, 255, 0.08); }
+  .global-header__lang-caret { width: 10px; height: 10px; fill: currentColor; }
+  .global-header__lang-menu {
+    position: absolute; top: calc(100% + 8px); right: 0;
+    background: oklch(0.18 0.012 28 / 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px; padding: 4px 0;
+    min-width: 100px; list-style: none; margin: 0;
+    opacity: 0; visibility: hidden; transform: translateY(-4px);
+    transition: opacity 200ms ease, transform 200ms ease, visibility 200ms ease;
+    z-index: 110;
+  }
+  .global-header__lang-menu.is-open { opacity: 1; visibility: visible; transform: translateY(0); }
+  .global-header__lang-menu button {
+    display: block; width: 100%; padding: 8px 16px;
+    background: transparent; border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 12px; letter-spacing: 0.05em;
+    text-align: left; cursor: pointer;
+    transition: background 200ms ease, color 200ms ease;
+  }
+  .global-header__lang-menu button:hover,
+  .global-header__lang-menu button.is-active {
+    background: rgba(255, 255, 255, 0.08); color: #fff;
+  }
+  .global-header__social {
+    display: flex; align-items: center; gap: 12px;
+    list-style: none; padding: 0; margin: 0;
+  }
+  .global-header__social a {
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px;
+    color: #fff; opacity: 0.7;
+    text-decoration: none; transition: opacity 200ms ease;
+  }
+  .global-header__social a:hover { opacity: 1; }
+  .global-header__social svg { width: 16px; height: 16px; fill: currentColor; }
+  .global-header__icons { display: flex; align-items: center; gap: 4px; }
+  .global-header__icon-btn,
+  .global-header__icon-link {
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px;
+    background: transparent; border: none;
+    color: #fff; opacity: 0.85;
+    text-decoration: none; cursor: pointer; border-radius: 50%;
+    transition: opacity 200ms ease, background 200ms ease;
+  }
+  .global-header__icon-btn:hover,
+  .global-header__icon-link:hover { opacity: 1; background: rgba(255, 255, 255, 0.08); }
+  .global-header__icon-btn svg,
+  .global-header__icon-link svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+  .global-header__cart-badge {
+    position: absolute; top: 4px; right: 4px;
+    min-width: 16px; height: 16px; padding: 0 4px;
+    display: flex; align-items: center; justify-content: center;
+    background: oklch(0.42 0.165 27);
+    color: #fff;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 10px; font-weight: 500;
+    border-radius: 999px; line-height: 1;
+  }
+
+  /* ====================================================================
+     2.  [SF] Sticky Filter Bar  (NOT sidebar - horizontal text labels)
+         Locked directly below the global header (top: 80px)
+     ==================================================================== */
+  .filter-bar {
+    position: sticky;
+    top: 80px;  /* below global header */
+    z-index: 90;
+    background: oklch(0.97 0.012 90 / 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid oklch(0.88 0.005 28);
+  }
+  .filter-bar__inner {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 14px 24px;
+    display: flex;
+    gap: 36px;
+    overflow-x: auto;
+    /* hide scrollbar visually on webkit */
+    scrollbar-width: none;
+  }
+  .filter-bar__inner::-webkit-scrollbar { display: none; }
+  .filter-pill {
+    flex-shrink: 0;
+    display: inline-block;
+    padding: 8px 0;
+    background: transparent; border: none;
+    color: oklch(0.55 0.008 28);
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    border-bottom: 1px solid transparent;
+    transition: color 200ms ease, border-color 200ms ease;
+    white-space: nowrap;
+  }
+  .filter-pill:hover { color: oklch(0.20 0.010 28); }
+  .filter-pill.is-active {
+    color: oklch(0.20 0.010 28);
+    border-bottom-color: oklch(0.42 0.165 27);  /* 霁红 underline */
+  }
+  .filter-pill__en {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: 14px;
+    margin-right: 6px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  /* ====================================================================
+     3.  Page header  (sparse)
+     ==================================================================== */
+  .page-header {
+    padding: 160px 24px 64px;
+    max-width: 1320px;
+    margin: 0 auto;
+  }
+  .page-header__eyebrow {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase;
+    color: oklch(0.55 0.008 28);
+    margin: 0 0 16px;
+  }
+  .page-header__title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 500; line-height: 1.1;
+    margin: 0 0 24px;
+    color: oklch(0.20 0.010 28);
+    letter-spacing: -0.015em;
+  }
+  .page-header__caption {
+    max-width: 36rem;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 14px; line-height: 1.6;
+    color: oklch(0.55 0.008 28);
+    margin: 0;
+  }
+
+  /* ====================================================================
+     4.  [GR] Gallery grid  (4-col,  1:1 squares,  64px gap)
+     ==================================================================== */
+  .gallery {
+    padding: 32px 24px 160px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  .gallery__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 64px 48px;  /* 64 row / 48 col  --  huge breathing */
+  }
+  @media (max-width: 1100px) {
+    .gallery__grid { grid-template-columns: repeat(3, 1fr); gap: 56px 40px; }
+  }
+  @media (max-width: 800px) {
+    .gallery__grid { grid-template-columns: repeat(2, 1fr); gap: 48px 32px; }
+  }
+  @media (max-width: 500px) {
+    .gallery__grid { grid-template-columns: 1fr; gap: 48px; }
+  }
+
+  /* [AN] Anti-nonsense card  --  name + kiln + price only  */
+  .collection-card {
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .collection-card__image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;   /* strict square */
+    overflow: hidden;
+    background: oklch(0.93 0.005 28);
+  }
+  .collection-card__image img {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .collection-card:hover .collection-card__image img { transform: scale(1.03); }
+
+  .collection-card__title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 18px; font-weight: 500; line-height: 1.3;
+    margin: 0;
+    color: oklch(0.20 0.010 28);
+    letter-spacing: -0.005em;
+  }
+  .collection-card__kiln {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; letter-spacing: 0.05em;
+    color: oklch(0.55 0.008 28);
+    margin: 0;
+  }
+  .collection-card__price {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 14px; font-weight: 500;
+    color: oklch(0.20 0.010 28);
+    margin: 0;
+    letter-spacing: 0.02em;
+  }
+
+  /* ====================================================================
+     5.  Lumina Liquid Glass footer  (verbatim, inherited)
+     ==================================================================== */
+  .liquid-glass {
+    background: rgba(255, 255, 255, 0.01);
+    background-blend-mode: luminosity;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: none;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  .liquid-glass::before {
+    content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1.4px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 20%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%, rgba(255,255,255,0.15) 80%, rgba(255,255,255,0.45) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
+  }
+  .footer__bg {
+    position: absolute; inset: 0; z-index: 0;
+    width: 100%; height: 100%; object-fit: cover;
+    opacity: 0.55;
+  }
+  .footer__glass {
+    position: absolute; inset: 0; z-index: 0;
+  }
+  .footer__content {
+    position: relative; z-index: 1;
+  }
+</style>
+</head>
+<body>
+
+<!-- A11Y skiplink -->
+<a href="#main" class="skiplink">Skip to main content</a>
+
+<!-- 1. Global Sticky Header  (Phase 3.5 chassis) -->
+<header class="global-header" data-state="top" id="global-header">
+  <div class="global-header__inner">
+    <a href="p01-home.html" class="global-header__brand">LLCCRAFT</a>
+
+    <div class="global-header__actions">
+      <div class="global-header__lang">
+        <button class="global-header__lang-btn" id="lang-btn" type="button"
+                aria-haspopup="true" aria-expanded="false" aria-controls="lang-menu">
+          <span data-current-lang>EN</span>
+          <svg class="global-header__lang-caret" viewBox="0 0 10 10" aria-hidden="true">
+            <path d="M2 4l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <ul class="global-header__lang-menu" id="lang-menu" role="menu" aria-label="Language">
+          <li role="none"><button role="menuitem" data-lang="en" class="is-active">EN</button></li>
+          <li role="none"><button role="menuitem" data-lang="zh">中文</button></li>
+          <li role="none"><button role="menuitem" data-lang="fr">FR</button></li>
+          <li role="none"><button role="menuitem" data-lang="ja">日本語</button></li>
+        </ul>
+      </div>
+
+      <ul class="global-header__social" aria-label="Social">
+        <li><a href="#" aria-label="Instagram">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <rect x="2" y="2" width="12" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="8" cy="8" r="2.6" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="11.6" cy="4.4" r="0.7" fill="currentColor"/>
+          </svg>
+        </a></li>
+        <li><a href="#" aria-label="WeChat">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <ellipse cx="6" cy="7" rx="5" ry="4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <ellipse cx="11" cy="10" rx="3.5" ry="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="4.7" cy="6" r="0.45" fill="currentColor"/>
+            <circle cx="7.3" cy="6" r="0.45" fill="currentColor"/>
+            <circle cx="10.4" cy="9.5" r="0.35" fill="currentColor"/>
+          </svg>
+        </a></li>
+        <li><a href="#" aria-label="Weibo">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <ellipse cx="8" cy="8.5" rx="6" ry="4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="6" cy="9" r="0.4" fill="currentColor"/>
+            <circle cx="9" cy="8" r="0.4" fill="currentColor"/>
+          </svg>
+        </a></li>
+      </ul>
+
+      <div class="global-header__icons">
+        <button class="global-header__icon-btn" id="search-btn" type="button" aria-label="Search">
+          <svg viewBox="0 0 18 18" aria-hidden="true">
+            <circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M12 12l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <a href="p05-auth.html" class="global-header__icon-link" aria-label="Account">
+          <svg viewBox="0 0 18 18" aria-hidden="true">
+            <circle cx="9" cy="6.5" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M3 16c0-3 3-5 6-5s6 2 6 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </a>
+        <button class="global-header__icon-btn global-header__cart" id="cart-btn" type="button" aria-label="Cart">
+          <svg viewBox="0 0 18 18" aria-hidden="true">
+            <path d="M3 5h2l1.5 8h7l1.5-6H6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <circle cx="7.5" cy="15.5" r="1" fill="currentColor"/>
+            <circle cx="12.5" cy="15.5" r="1" fill="currentColor"/>
+          </svg>
+          
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- 3. Page header  (sparse) -->
+  <header class="page-header">
+    <p class="page-header__eyebrow">Catalogue &middot; No. 06</p>
+    <h1 class="page-header__title">Lorem Ipsum, 24 pieces</h1>
+    <p class="page-header__caption">Curated by the editorial desk. Updated quarterly.</p>
+  </header>
+
+  <!-- 2. [SF] Sticky Filter Bar  (horizontal text labels,  not sidebar) -->
+  <nav class="filter-bar" role="navigation" aria-label="Collection categories">
+    <div class="filter-bar__inner">
+      <button class="filter-pill is-active" type="button" data-filter="all">All</button>
+      <button class="filter-pill" type="button" data-filter="ru-ware">
+        <span class="filter-pill__en">Ru ware</span>汝窑
+      </button>
+      <button class="filter-pill" type="button" data-filter="jianzhan">
+        <span class="filter-pill__en">Jianzhan</span>建盏
+      </button>
+      <button class="filter-pill" type="button" data-filter="tea-cup">
+        <span class="filter-pill__en">Tea cup</span>茶杯
+      </button>
+      <button class="filter-pill" type="button" data-filter="process">
+        <span class="filter-pill__en">Process</span>工艺
+      </button>
+    </div>
+  </nav>
+
+  <!-- 4. [GR] Gallery grid  (4-col,  1:1,  64px gap) + [AN] anti-nonsense cards -->
+  <section class="gallery" aria-label="Collection catalogue">
+    <div class="gallery__grid">
+
+      <!-- Ru ware (汝窑)  -  3 pieces -->
+      <article class="collection-card">
+        <a href="p02-pdp.html" class="collection-card__image" aria-label="Lorem ipsum sky-blue Mei vase">
+          <img src="https://picsum.photos/600/600?random=60" alt="Lorem ipsum sky-blue Mei vase" loading="lazy">
+        </a>
+        <h3 class="collection-card__title">Sky-blue Mei vase</h3>
+        <p class="collection-card__kiln">Ru ware &middot; Baofeng</p>
+        <p class="collection-card__price">$1,200</p>
+      </article>
+
+      <article class="collection-card">
+        <a href="p02-pdp.html" class="collection-card__image" aria-label="Lorem ipsum moon-white tea bowl">
+          <img src="https://picsum.photos/600/600?random=61" alt="Lorem ipsum moon-white tea bowl" loading="lazy">
+        </a>
+        <h3 class="collection-card__title">Moon-white tea bowl</h3>
+        <p class="collection-card__kiln">Ru ware &middot; Baofeng</p>
+        <p class="collection-card__price">$890</p>
+      </article>
+
+      <article class="collection-card">
+        <a href="p02-pdp.html" class="collection-card__image" aria-label="Lorem ipsum celadon small cup">
+          <img src="https://picsum.photos/600/600?random=62" alt="Lorem ipsum celadon small cup" loading="lazy">
+        </a>
+        <h3 class="collection-card__title">Celadon small cup</h3>
+        <p class="collection-card__kiln">Ru ware &middot; Baofeng</p>
+        <p class="collection-card__price">$250</p>
+      </article>
+
+      <!-- Jianzhan (建盏)  -  3 pieces -->
+      <article class="collection-card">
+        <a href="p02-pdp.html" class="collection-card__image" aria-label="Lorem ipsum Tenmoku tea bowl">
+          <img src="https://picsum.photos/600/600?random=63" alt="Lorem ipsum Tenmoku tea bowl" loading="lazy">
+        </a>
+        <h3 class="collection-card__title">Tenmoku tea bowl</h3>
+        <p class="collection-card__kiln">Jianzhan &middot; Jianyang</p>
+        <p class="collection-card__price">$2,400</p>
+      </article>
+
+      <article class="collection-card">
+        <a href="p02-pdp.html" class="collection-card__image" aria-label="Lorem ipsum hare's fur bowl">
+          <img src="https://picsum.photos/600/600?random=64" alt="Lorem ipsum hare's fur bowl" loading="lazy">
+        </a>
+        <h3 class="collection-card__title">Hare's fur bowl</h3>
+        <p class="collection-card__kiln">Jianzhan &middot; Jianyang</p>
+        <p class="collection-card__price">$1,800</p>
+      </article>
+
+      <article class="collection-card">
+        <a href="p02-pdp.html" class="collection-card__image" aria-label="Lorem ipsum oil-spot bowl">
+          <img src="https://picsum.photos/600/600?random=65" alt="Lorem ipsum oil-spot bowl" loading="lazy">
+        </a>
+        <h3 class="collection-card__title">Oil-spot bowl</h3>
+        <p class="collection-card__kiln">Jianzhan &middot; Jianyang</p>
+        <p class="collection-card__price">$3,200</p>
+      </article>
+
+      <!-- Tea cup (茶杯)  -  3 pieces -->
+      <article class="collection-card">
+        <a href="p02-pdp.html" class="collection-card__image" aria-label="Lorem ipsum hand-thrown celadon cup">
+          <img src="https://picsum.photos/600/600?random=66" alt="Lorem ipsum hand-thrown celadon cup" loading="lazy">
+        </a>
+        <h3 class="collection-card__title">Hand-thrown celadon cup</h3>
+        <p class="collection-card__kiln">Longquan celadon</p>
+        <p class="collection-card__price">$420</p>
+      </article>
+
+      <article class="collection-card">
+        <a href="p02-pdp.html" class="collection-card__image" aria-label="Lorem ipsum Ru-ware teacup set">
+          <img src="https://picsum.photos/600/600?random=67" alt="Lorem ipsum Ru-ware teacup set" loading="lazy">
+        </a>
+        <h3 class="collection-card__title">Ru-ware teacup, pair</h3>
+        <p class="collection-card__kiln">Ru ware &middot; Baofeng</p>
+        <p class="collection-card__price">$680</p>
+      </article>
+
+      <article class="collection-card">
+        <a href="p02-pdp.html" class="collection-card__image" aria-label="Lorem ipsum glazed teacup pair">
+          <img src="https://picsum.photos/600/600?random=68" alt="Lorem ipsum glazed teacup pair" loading="lazy">
+        </a>
+        <h3 class="collection-card__title">Glazed teacup, pair</h3>
+        <p class="collection-card__kiln">Jingdezhen</p>
+        <p class="collection-card__price">$320</p>
+      </article>
+
+      <!-- Process (工艺)  -  3 pieces -->
+      <article class="collection-card">
+        <a href="p02-pdp.html" class="collection-card__image" aria-label="Lorem ipsum glaze test tile">
+          <img src="https://picsum.photos/600/600?random=69" alt="Lorem ipsum glaze test tile" loading="lazy">
+        </a>
+        <h3 class="collection-card__title">Glaze test tile</h3>
+        <p class="collection-card__kiln">Process &middot; Studio sample</p>
+        <p class="collection-card__price">$180</p>
+      </article>
+
+      <article class="collection-card">
+        <a href="p02-pdp.html" class="collection-card__image" aria-label="Lorem ipsum kiln record plate">
+          <img src="https://picsum.photos/600/600?random=70" alt="Lorem ipsum kiln record plate" loading="lazy">
+        </a>
+        <h3 class="collection-card__title">Kiln record plate</h3>
+        <p class="collection-card__kiln">Process &middot; Q2 2026 firing</p>
+        <p class="collection-card__price">$220</p>
+      </article>
+
+      <article class="collection-card">
+        <a href="p02-pdp.html" class="collection-card__image" aria-label="Lorem ipsum maker's reference piece">
+          <img src="https://picsum.photos/600/600?random=71" alt="Lorem ipsum maker's reference piece" loading="lazy">
+        </a>
+        <h3 class="collection-card__title">Maker's reference piece</h3>
+        <p class="collection-card__kiln">Process &middot; Liu atelier</p>
+        <p class="collection-card__price">$1,400</p>
+      </article>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- ====================================================================
+     Lumina Liquid Glass footer  (P-01 v0.4.1.6 100% 复用 verbatim)
+     ==================================================================== -->
+<footer class="relative overflow-hidden" style="isolation: isolate; border-radius: 0; margin-top: 96px; min-height: 480px;">
+
+  <video class="footer__bg" autoplay loop muted playsinline>
+    <source src="{{hero.video.url}}" data-placeholder="hero-video.mp4" type="video/mp4">
+  </video>
+
+  <div class="liquid-glass footer__glass"></div>
+
+  <div class="footer__content" style="padding: 96px 24px 32px;">
+    <div class="max-w-wide mx-auto" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 48px;">
+      <div>
+        <h3 class="font-serif text-2xl mb-4" style="font-family: 'Cormorant Garamond', serif; font-weight: 500;">LLCCRAFT</h3>
+        <p class="text-sm" style="color: oklch(0.20 0.010 28); opacity: 0.7;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor.</p>
+      </div>
+      <div>
+        <h4 class="text-xs uppercase mb-4" style="letter-spacing: 0.18em; color: oklch(0.55 0.008 28);">Collections</h4>
+        <ul style="list-style: none; padding: 0; margin: 0;">
+          <li style="margin-bottom: 8px;"><a href="p06-collection.html" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Ru ware</a></li>
+          <li style="margin-bottom: 8px;"><a href="p06-collection.html" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Jianzhan</a></li>
+          <li style="margin-bottom: 8px;"><a href="p06-collection.html" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Tea cup</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs uppercase mb-4" style="letter-spacing: 0.18em; color: oklch(0.55 0.008 28);">Atelier</h4>
+        <ul style="list-style: none; padding: 0; margin: 0;">
+          <li style="margin-bottom: 8px;"><a href="p04-about.html" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">About</a></li>
+          <li style="margin-bottom: 8px;"><a href="p04-about.html" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Master Liu</a></li>
+          <li style="margin-bottom: 8px;"><a href="p04-about.html" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Master Chen</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs uppercase mb-4" style="letter-spacing: 0.18em; color: oklch(0.55 0.008 28);">Acquisition</h4>
+        <ul style="list-style: none; padding: 0; margin: 0;">
+          <li style="margin-bottom: 8px;"><a href="p02-pdp.html" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Direct purchase</a></li>
+          <li style="margin-bottom: 8px;"><a href="p02-pdp.html" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Private inquiry</a></li>
+          <li style="margin-bottom: 8px;"><a href="p05-auth.html" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Sign in</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="max-w-wide mx-auto" style="margin-top: 64px; padding-top: 24px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; border-top: 1px solid oklch(0.20 0.010 28 / 0.1);">
+      <p class="text-xs" style="color: oklch(0.55 0.008 28);">&copy; 2026 LLCCRAFT &middot; Lorem ipsum</p>
+      <p class="text-xs" style="color: oklch(0.55 0.008 28);">Privacy &middot; Terms &middot; Contact</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* ==========================================================================
+     P-06 Collection JS  v1.0.0
+     ==========================================================================
+     Modules (Phase 3.5 chassis + new collection-specific):
+       1. Global Sticky Header  (scroll dir + lang dropdown)
+       2. Sticky filter bar tab-switch  (skeleton visual only)
+     ========================================================================== */
+
+  (function () {
+    /* 1. Global Sticky Header  (Phase 3.5 chassis) */
+    const header = document.getElementById('global-header');
+    if (header) {
+      let lastY = 0;
+      const onScroll = () => {
+        const y = window.scrollY;
+        const dir = y > lastY ? 'down' : 'up';
+        lastY = y;
+        if (y < 80) {
+          header.dataset.state = 'top';
+          header.classList.remove('is-scrolled-down', 'is-scrolled-up');
+        } else {
+          header.dataset.state = dir;
+          header.classList.toggle('is-scrolled-down', dir === 'down');
+          header.classList.toggle('is-scrolled-up', dir === 'up');
+        }
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }
+
+    /* 1b. Lang dropdown */
+    const langBtn  = document.getElementById('lang-btn');
+    const langMenu = document.getElementById('lang-menu');
+    if (langBtn && langMenu) {
+      const toggle = (open) => {
+        const isOpen = open ?? !langMenu.classList.contains('is-open');
+        langMenu.classList.toggle('is-open', isOpen);
+        langBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      };
+      langBtn.addEventListener('click', (e) => { e.stopPropagation(); toggle(); });
+      langMenu.addEventListener('click', (e) => {
+        const item = e.target.closest('[data-lang]');
+        if (item) {
+          langMenu.querySelectorAll('button').forEach((b) => b.classList.remove('is-active'));
+          item.classList.add('is-active');
+          const cur = langBtn.querySelector('[data-current-lang]');
+          if (cur) cur.textContent = item.textContent;
+          toggle(false);
+        }
+      });
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.global-header__lang')) toggle(false);
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && langMenu.classList.contains('is-open')) {
+          toggle(false);
+          langBtn.focus();
+        }
+      });
+    }
+
+    /* 2. Sticky Filter Bar tab-switch  (skeleton visual only) */
+    const pills = document.querySelectorAll('.filter-pill');
+    pills.forEach((pill) => {
+      pill.addEventListener('click', () => {
+        pills.forEach((p) => {
+          p.classList.toggle('is-active', p === pill);
+          p.setAttribute('aria-selected', p === pill ? 'true' : 'false');
+        });
+        /* skeleton : no real article filtering */
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>

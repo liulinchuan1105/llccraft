@@ -1,0 +1,75 @@
+{
+  "project": "LLCCRAFT",
+  "domain": "llccraft.com",
+  "register": "brand",
+  "impeccable_version": "SKILL.src.md 2026-07-05",
+  "ledger_snapshot_at": "2026-07-08T00:30:00+08:00",
+  "ledger_mode": "READ-ONLY (post task pause · awaiting B 扫描)",
+  "documents": {
+    "PRODUCT": "C:\\Users\\Administrator\\Desktop\\独立站\\PRODUCT.md",
+    "DESIGN":  "C:\\Users\\Administrator\\Desktop\\独立站\\DESIGN.md"
+  },
+  "path_A_P01_note": "P-01 路径 A 锁定(c69aa6ff53f8...57325B · 磁盘当前真值) · 放弃追溯 v0.4.1.6 原 LOCKED",
+  "war_zone_2_attack_2026_07_08": {
+    "P-07_v0.5.1.1_to_v0.7.0_SaaS": {
+      "size_bytes": 33791,
+      "md5": "4fdf2956e0087c64ffce1a3d5c26fe08",
+      "REMOVED": ["礼宾 4h 响应", "提交接洽单", "Private Inquiry", "Request a Viewing", "Complete acquisition(接洽意)"],
+      "ADDED": ["Stripe.js v3 SDK real", "PayPal SDK Smart Buttons real", "Pay Now button real submit", "form novalidate + real-time error handling"],
+      "token_injection_global": "letter-spacing scale + Lumina glass opacity scale via :root vars"
+    }
+  },
+  "locked_files": {
+    "p01-home.html": {
+      "version": "v0.4.1.5 (path A · 磁盘当前真值)",
+      "size_bytes": 57325,
+      "md5": "c69aa6ff53f8336b86f24dfa4f356621"
+    },
+    "p02-pdp.html": {
+      "version": "v0.5.1",
+      "size_bytes": 46124,
+      "md5": "bf1cc7a212892beb7395d04a06a6478c"
+    },
+    "p03-journal.html": {
+      "version": "v0.4.2",
+      "size_bytes": 44339,
+      "md5": "e76b8406b33439a23bb135249e287874"
+    },
+    "p04-about.html": {
+      "version": "v1.0.0",
+      "size_bytes": 28553,
+      "md5": "e86d350f609ca37cc2010817a77c603d"
+    },
+    "p05-auth.html": {
+      "version": "v0.4.1.1 (auth flip · 2026-07-07)",
+      "size_bytes": 15206,
+      "md5": "174ffaf6abe0cd3ca21591b350614aee"
+    },
+    "p06-collection.html": {
+      "version": "v1.0.0",
+      "size_bytes": 32920,
+      "md5": "6bd9394c06667c385bdb8b70d1dc414a"
+    },
+    "p07-checkout.html": {
+      "version": "v0.7.0 SaaS (war zone 2 attack · 2026-07-08)",
+      "size_bytes": 33791,
+      "md5": "4fdf2956e0087c64ffce1a3d5c26fe08"
+    },
+    "p09-account.html": {
+      "version": "v0.4.1.1",
+      "size_bytes": 38508,
+      "md5": "7dc73c45248a821085a7c3b8589f383e"
+    },
+    "p10-compliance.html": {
+      "version": "v1.0.0",
+      "size_bytes": 11302,
+      "md5": "49e78f33669e7bd47d64f64f9d475942"
+    }
+  },
+  "alignment_status": {
+    "physical_disk_files": 9,
+    "ledger_locked_files": 9,
+    "alignment": "0 DRIFT · 9/9 100% 对齐(战区二 v0.7.0 SaaS 写盘后)"
+  },
+  "next_action": "等 B 监军 8 项卡口 + 全站双锁定闭环达成报告 → 战区三 GitHub push 解锁"
+}

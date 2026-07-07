@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLCCRAFT · P-09 Account · v1.0.0</title>
+<meta name="description" content="LLCCRAFT P-09 My Account. v1.0.0. Atmospheric fixed BG + 80% glass panel (blur 40px) + Order History timeline + Collector Profile + Early Access toggle. Inherits P-01 v0.4.1.6 (Phase 3.5 chassis).">
+
+<!--
+  ============================================================================
+  P-09 My Account · v1.0.0 · PHASE 7 (functional closed-loop)
+  ============================================================================
+  Inherits from P-01 v0.4.1.6 (LOCKED + Phase 3.5 patch):
+    - Helvetica Regular @font-face (5 formats, ACTIVE)
+    - Global Sticky Header (Phase 3.5 chassis)
+    - Impeccable 宪法 :  skiplink / focus-visible / reduced-motion
+    - WCAG 2.1 AA  :  contrast / keyboard / aria
+    - Lumina 14-line CSS  -  reused + HEAVIER blur (40px) for the
+                            massive glass panel
+  New for P-09 (Account):
+    [BG]  Atmospheric fixed BG  -  full-screen cover, fixed, dark overlay
+    [GP]  Massive glass panel   -  80% width, max 1200px, blur 40px
+    [TL]  Timeline  -  minimal Order History with vertical line + dots
+    [TG]  Apple toggle  -  CSS-only checkbox styled as pill switch
+    [EA]  Early Access Allocations  -  "Subscribe" toggle
+  ============================================================================
+-->
+
+<!-- Tailwind Play CDN : self-contained skeleton render -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          'gallery':  'oklch(0.97 0.012 90)',
+          'ink':      'oklch(0.20 0.010 28)',
+          'ink-soft': 'oklch(0.55 0.008 28)',
+          'rule':     'oklch(0.88 0.005 28)',
+        },
+        fontFamily: {
+          serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+          sans:  ['"Helvetica Regular"', '"Inter"', 'system-ui', 'sans-serif'],
+        },
+        maxWidth: { 'wide': '1320px', 'panel': '1200px' },
+      }
+    }
+  }
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  /* ==========================================================================
+     P-09 My Account v1.0.0
+     ========================================================================== */
+
+  /* ---------- F1 : Helvetica Regular @font-face (inherited, ACTIVE) ---------- */
+  @font-face {
+    font-family: "Helvetica Regular";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.eot");
+    src: url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.eot?#iefix")format("embedded-opentype"),
+         url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.woff2")format("woff2"),
+         url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.woff")format("woff"),
+         url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.ttf")format("truetype"),
+         url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.svg#Helvetica Regular")format("svg");
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; min-height: 100vh; }
+  body {
+    background: #0a0a0a;
+    color: #fff;
+    font-family: "Helvetica Regular", "Inter", system-ui, -apple-system, sans-serif;
+    font-size: 16px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ---------- A11Y ---------- */
+  .skiplink {
+    position: fixed; top: -100px; left: 12px; z-index: 200;
+    padding: 8px 24px; background: #000; color: #fff;
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    border-radius: 2px; text-decoration: none; font-weight: 500;
+    transition: top 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .skiplink:focus { top: 12px; }
+  :focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ====================================================================
+     1.  Global Sticky Header  (Phase 3.5 chassis, reused)
+     ==================================================================== */
+  .global-header {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition: background 320ms ease, backdrop-filter 320ms ease,
+                border-color 320ms ease;
+  }
+  .global-header.is-scrolled-down {
+    background: rgba(15, 15, 15, 0.5);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+  .global-header.is-scrolled-up { background: transparent; backdrop-filter: none; border-bottom-color: transparent; }
+  .global-header__inner { max-width: 1320px; margin: 0 auto; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; gap: 32px; }
+  .global-header__brand { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 22px; font-weight: 500; color: #fff; text-decoration: none; letter-spacing: -0.005em; flex-shrink: 0; }
+  .global-header__actions { display: flex; align-items: center; gap: 24px; }
+  .global-header__lang { position: relative; }
+  .global-header__lang-btn { display: inline-flex; align-items: center; gap: 4px; background: transparent; border: none; padding: 6px 8px; color: #fff; cursor: pointer; font-family: "Helvetica Regular", "Inter", sans-serif; font-size: 12px; letter-spacing: 0.05em; border-radius: 4px; transition: background 200ms ease; }
+  .global-header__lang-btn:hover { background: rgba(255, 255, 255, 0.08); }
+  .global-header__lang-caret { width: 10px; height: 10px; fill: currentColor; }
+  .global-header__lang-menu { position: absolute; top: calc(100% + 8px); right: 0; background: oklch(0.18 0.012 28 / 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px; padding: 4px 0; min-width: 100px; list-style: none; margin: 0; opacity: 0; visibility: hidden; transform: translateY(-4px); transition: opacity 200ms ease, transform 200ms ease, visibility 200ms ease; z-index: 110; }
+  .global-header__lang-menu.is-open { opacity: 1; visibility: visible; transform: translateY(0); }
+  .global-header__lang-menu button { display: block; width: 100%; padding: 8px 16px; background: transparent; border: none; color: rgba(255, 255, 255, 0.7); font-family: "Helvetica Regular", "Inter", sans-serif; font-size: 12px; letter-spacing: 0.05em; text-align: left; cursor: pointer; transition: background 200ms ease, color 200ms ease; }
+  .global-header__lang-menu button:hover, .global-header__lang-menu button.is-active { background: rgba(255, 255, 255, 0.08); color: #fff; }
+  .global-header__social { display: flex; align-items: center; gap: 12px; list-style: none; padding: 0; margin: 0; }
+  .global-header__social a { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; color: #fff; opacity: 0.7; text-decoration: none; transition: opacity 200ms ease; }
+  .global-header__social a:hover { opacity: 1; }
+  .global-header__social svg { width: 16px; height: 16px; fill: currentColor; }
+  .global-header__icons { display: flex; align-items: center; gap: 4px; }
+  .global-header__icon-btn, .global-header__icon-link { position: relative; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: transparent; border: none; color: #fff; opacity: 0.85; text-decoration: none; cursor: pointer; border-radius: 50%; transition: opacity 200ms ease, background 200ms ease; }
+  .global-header__icon-btn:hover, .global-header__icon-link:hover { opacity: 1; background: rgba(255, 255, 255, 0.08); }
+  .global-header__icon-btn svg, .global-header__icon-link svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+  .global-header__cart-badge { position: absolute; top: 6px; right: 6px; min-width: 14px; height: 14px; padding: 0 3px; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.12); color: rgba(255, 255, 255, 0.85); border: 1px solid rgba(255, 255, 255, 0.28); font-family: "Helvetica Regular", "Inter", sans-serif; font-size: 9px; font-weight: 400; border-radius: 999px; line-height: 1; letter-spacing: 0; }
+
+  /* ====================================================================
+     2.  [BG] Atmospheric fixed BG  (full-screen,  dark overlay)
+     ==================================================================== */
+  .atmospheric-bg {
+    position: fixed; inset: 0;
+    z-index: -2;
+    background-image: url('https://picsum.photos/1920/1080?random=99');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+  }
+  .atmospheric-overlay {
+    position: fixed; inset: 0;
+    z-index: -1;
+    background: linear-gradient(180deg,
+      rgba(0, 0, 0, 0.55) 0%,
+      rgba(0, 0, 0, 0.40) 50%,
+      rgba(0, 0, 0, 0.65) 100%);
+    pointer-events: none;
+  }
+
+  /* ====================================================================
+     3.  [GP] Massive glassmorphism panel  (80% width,  blur 40px)
+     ==================================================================== */
+  .account-main {
+    position: relative;
+    z-index: 1;
+    padding: 120px 24px 96px;
+    min-height: 100vh;
+  }
+  .account-panel {
+    position: relative;
+    max-width: 800px;  /* v0.4.1.1 patch : 1200 → 800 (more focused, "rest room" feel) */
+    width: 90%;
+    margin: 0 auto;
+    padding: 56px 48px 64px;
+    background: rgba(255, 255, 255, 0.06);
+    background-blend-mode: luminosity;
+    backdrop-filter: blur(40px) saturate(140%);
+    -webkit-backdrop-filter: blur(40px) saturate(140%);
+    border: none; border-radius: 16px;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15),
+                0 24px 64px rgba(0, 0, 0, 0.45);
+    color: #fff;
+    overflow: hidden;
+  }
+  /* Lumina-style gradient border */
+  .account-panel::before {
+    content: ''; position: absolute; inset: 0;
+    border-radius: inherit; padding: 1.4px;
+    background: linear-gradient(180deg,
+      rgba(255,255,255,0.50) 0%,
+      rgba(255,255,255,0.18) 20%,
+      rgba(255,255,255,0) 40%,
+      rgba(255,255,255,0) 60%,
+      rgba(255,255,255,0.18) 80%,
+      rgba(255,255,255,0.50) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    pointer-events: none;
+  }
+  .account-panel__inner { position: relative; z-index: 1; }
+
+  @media (max-width: 768px) {
+    .account-panel { width: 92%; padding: 40px 24px 48px; }
+  }
+
+  .account-eyebrow {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0 0 12px;
+  }
+  .account-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(2rem, 3.5vw, 2.75rem);
+    font-weight: 500; line-height: 1.1;
+    margin: 0 0 8px;
+    color: #fff;
+    letter-spacing: -0.015em;
+  }
+  .account-sub {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: 17px; color: rgba(255, 255, 255, 0.7);
+    margin: 0 0 64px;
+  }
+
+  /* Two-module grid */
+  .account-modules {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 80px 64px;
+  }
+  @media (max-width: 900px) {
+    .account-modules { grid-template-columns: 1fr; gap: 64px; }
+  }
+
+  .module-eyebrow {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0 0 8px;
+  }
+  .module-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 28px; font-weight: 500;
+    margin: 0 0 32px;
+    color: #fff;
+    letter-spacing: -0.01em;
+  }
+
+  /* ====================================================================
+     4.  [TL] Timeline  (Order History)
+     ==================================================================== */
+  .timeline {
+    list-style: none; padding: 0; margin: 0;
+    position: relative;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 8px; bottom: 8px;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.15);
+  }
+  .timeline__item {
+    position: relative;
+    padding-left: 32px;
+    padding-bottom: 32px;
+  }
+  .timeline__item:last-child { padding-bottom: 0; }
+  .timeline__dot {
+    position: absolute;
+    left: 0; top: 6px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: oklch(0.42 0.165 27);  /* 霁红 */
+    box-shadow: 0 0 0 4px rgba(168, 50, 63, 0.15);
+  }
+  .timeline__date {
+    display: block;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+    margin: 0 0 4px;
+  }
+  .timeline__title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 18px; font-weight: 500;
+    line-height: 1.3;
+    margin: 0 0 4px;
+    color: #fff;
+    letter-spacing: -0.005em;
+  }
+  .timeline__meta {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 12px; color: rgba(255, 255, 255, 0.55);
+    margin: 0 0 6px;
+    letter-spacing: 0.02em;
+  }
+  .timeline__foot {
+    display: flex; align-items: center; gap: 12px;
+    margin-top: 4px;
+  }
+  .timeline__price {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 14px; font-weight: 500;
+    color: #fff;
+  }
+  .timeline__status {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 2px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+  }
+
+  /* ====================================================================
+     5.  [TG] Apple-style toggle +  [EA] Early Access Allocations
+     ==================================================================== */
+  .profile__email-block {
+    margin: 0 0 32px;
+  }
+  .profile__label {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+    margin: 0 0 8px;
+  }
+  .profile__email {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 16px; font-weight: 500;
+    color: #fff;
+    margin: 0;
+    letter-spacing: -0.005em;
+    word-break: break-all;
+  }
+
+  .profile__divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.12);
+    border: none; margin: 32px 0;
+  }
+
+  /* Apple-style toggle (CSS-only checkbox) */
+  .toggle-row {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .toggle {
+    position: relative;
+    display: inline-block;
+    flex-shrink: 0;
+    width: 48px; height: 28px;
+  }
+  .toggle__input {
+    position: absolute;
+    opacity: 0; width: 0; height: 0;
+  }
+  .toggle__slider {
+    position: absolute; inset: 0;
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 200ms ease;
+  }
+  .toggle__slider::before {
+    content: '';
+    position: absolute;
+    width: 22px; height: 22px;
+    left: 3px; top: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .toggle__input:checked + .toggle__slider {
+    background: #003399;  /* cobalt on */
+  }
+  .toggle__input:checked + .toggle__slider::before {
+    transform: translateX(20px);
+  }
+  .toggle__input:focus-visible + .toggle__slider {
+    outline: 2px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 3px;
+  }
+  .toggle__label {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 14px; font-weight: 500;
+    color: #fff;
+    line-height: 1.4;
+    cursor: pointer;
+  }
+  .toggle__label-sub {
+    display: block;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; font-weight: 400;
+    color: rgba(255, 255, 255, 0.55);
+    margin-top: 4px;
+    letter-spacing: 0.02em;
+  }
+
+  .profile__signout {
+    display: inline-block;
+    margin-top: 32px;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+    padding-bottom: 2px;
+    transition: color 200ms ease, border-color 200ms ease;
+  }
+  .profile__signout:hover { color: #fff; border-bottom-color: #fff; }
+
+  /* ====================================================================
+     6.  Edit Profile  (v0.4.1 patch :  collector's archive quality)
+     -  Avatar + name + address
+     -  "Submit for review" pattern (NO direct save) - editorial review
+     -  Submits to  /api/account/profile/review  for admin approval
+     ==================================================================== */
+  .profile-edit-section {
+    margin-top: 64px;
+    padding-top: 48px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .profile-edit-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+  @media (max-width: 720px) {
+    .profile-edit-grid { grid-template-columns: 1fr; gap: 32px; }
+  }
+  .profile-avatar {
+    width: 112px; height: 112px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+  .profile-avatar img {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+  }
+  .profile-avatar-info { margin-top: 16px; max-width: 200px; }
+  .profile-avatar-name {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 22px; font-weight: 500;
+    margin: 0 0 4px; color: #fff;
+    letter-spacing: -0.005em;
+  }
+  .profile-avatar-loc {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0 0 12px;
+  }
+  .profile-avatar-change {
+    display: inline-block;
+    padding: 6px 12px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 999px;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    cursor: pointer;
+    transition: background 200ms ease, border-color 200ms ease;
+  }
+  .profile-avatar-change:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+  .profile-pending {
+    display: none; align-items: center; gap: 12px;
+    padding: 14px 20px;
+    background: rgba(255, 200, 0, 0.08);
+    border: 1px solid rgba(255, 200, 0, 0.3);
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 12px; color: rgba(255, 200, 0, 0.95);
+    letter-spacing: 0.02em;
+  }
+  .profile-pending.is-open { display: flex; }
+  .profile-pending__dot {
+    width: 8px; height: 8px;
+    background: rgba(255, 200, 0, 0.95);
+    border-radius: 50%;
+  }
+  .profile-form { display: flex; flex-direction: column; gap: 16px; max-width: 520px; }
+  .profile-form__field { display: flex; flex-direction: column; gap: 6px; }
+  .profile-form__label {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.6);
+  }
+  .profile-form__input,
+  .profile-form__textarea {
+    display: block; width: 100%;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    color: #fff;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 14px;
+    transition: border-color 200ms ease, background 200ms ease;
+  }
+  .profile-form__input:focus,
+  .profile-form__textarea:focus {
+    outline: none;
+    border-color: #003399;
+    background: rgba(255, 255, 255, 0.12);
+  }
+  .profile-form__input::placeholder,
+  .profile-form__textarea::placeholder { color: rgba(255, 255, 255, 0.35); }
+  .profile-form__textarea { resize: vertical; min-height: 88px; line-height: 1.6; }
+  .profile-form__file { padding: 10px 12px; cursor: pointer; }
+  .profile-form__file::file-selector-button {
+    margin-right: 12px;
+    padding: 6px 12px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 999px;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    cursor: pointer;
+  }
+  .profile-submit {
+    margin-top: 8px;
+    align-self: flex-start;
+    padding: 14px 32px;
+    background: #003399;
+    color: #fff;
+    border: none; border-radius: 999px;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 13px; font-weight: 500;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    cursor: pointer;
+    transition: background 200ms ease;
+  }
+  .profile-submit:hover { background: #002277; }
+  .profile-submit:disabled {
+    background: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.55);
+    cursor: not-allowed;
+  }
+  .profile-submit-note {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; color: rgba(255, 255, 255, 0.5);
+    margin: 8px 0 0;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+  }
+
+  /* Minimal checkout-style footer  (compact,  matches p07) */
+  .account-footer {
+    position: relative;
+    z-index: 1;
+    padding: 32px 24px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.4);
+  }
+  .account-footer p {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- A11Y skiplink -->
+<a href="#main" class="skiplink">Skip to main content</a>
+
+<!-- 1. Global Sticky Header  (Phase 3.5 chassis) -->
+<header class="global-header" data-state="top" id="global-header">
+  <div class="global-header__inner">
+    <a href="p01-home.html" class="global-header__brand">LLCCRAFT</a>
+
+    <div class="global-header__actions">
+      <div class="global-header__lang">
+        <button class="global-header__lang-btn" id="lang-btn" type="button"
+                aria-haspopup="true" aria-expanded="false" aria-controls="lang-menu">
+          <span data-current-lang>EN</span>
+          <svg class="global-header__lang-caret" viewBox="0 0 10 10" aria-hidden="true">
+            <path d="M2 4l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <ul class="global-header__lang-menu" id="lang-menu" role="menu" aria-label="Language">
+          <li role="none"><button role="menuitem" data-lang="en" class="is-active">EN</button></li>
+          <li role="none"><button role="menuitem" data-lang="zh">中文</button></li>
+          <li role="none"><button role="menuitem" data-lang="fr">FR</button></li>
+          <li role="none"><button role="menuitem" data-lang="ja">日本語</button></li>
+        </ul>
+      </div>
+
+      <ul class="global-header__social" aria-label="Social">
+        <li><a href="#" aria-label="Instagram">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <rect x="2" y="2" width="12" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="8" cy="8" r="2.6" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="11.6" cy="4.4" r="0.7" fill="currentColor"/>
+          </svg>
+        </a></li>
+        <li><a href="#" aria-label="WeChat">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <ellipse cx="6" cy="7" rx="5" ry="4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <ellipse cx="11" cy="10" rx="3.5" ry="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="4.7" cy="6" r="0.45" fill="currentColor"/>
+            <circle cx="7.3" cy="6" r="0.45" fill="currentColor"/>
+            <circle cx="10.4" cy="9.5" r="0.35" fill="currentColor"/>
+          </svg>
+        </a></li>
+        <li><a href="#" aria-label="Weibo">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <ellipse cx="8" cy="8.5" rx="6" ry="4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="6" cy="9" r="0.4" fill="currentColor"/>
+            <circle cx="9" cy="8" r="0.4" fill="currentColor"/>
+          </svg>
+        </a></li>
+      </ul>
+
+      <div class="global-header__icons">
+        <button class="global-header__icon-btn" id="search-btn" type="button" aria-label="Search">
+          <svg viewBox="0 0 18 18" aria-hidden="true">
+            <circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M12 12l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <a href="p05-auth.html" class="global-header__icon-link" aria-label="Account">
+          <svg viewBox="0 0 18 18" aria-hidden="true">
+            <circle cx="9" cy="6.5" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M3 16c0-3 3-5 6-5s6 2 6 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </a>
+        <button class="global-header__icon-btn global-header__cart" id="cart-btn" type="button" aria-label="Cart">
+          <svg viewBox="0 0 18 18" aria-hidden="true">
+            <path d="M3 5h2l1.5 8h7l1.5-6H6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <circle cx="7.5" cy="15.5" r="1" fill="currentColor"/>
+            <circle cx="12.5" cy="15.5" r="1" fill="currentColor"/>
+          </svg>
+          
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- 2. [BG] Atmospheric BG  (full-screen, fixed) + dark overlay -->
+<div class="atmospheric-bg" aria-hidden="true"></div>
+<div class="atmospheric-overlay" aria-hidden="true"></div>
+
+<main id="main" class="account-main">
+
+  <!-- 3. [GP] Massive glassmorphism panel  (80% width, blur 40px) -->
+  <section class="account-panel" aria-label="My account dashboard">
+    <div class="account-panel__inner">
+
+      <p class="account-eyebrow">Welcome back, collector</p>
+      <h1 class="account-title">Lorem Ipsum</h1>
+      <p class="account-sub">A small account of slow acquisitions</p>
+
+      <div class="account-modules">
+
+        <!-- ============================================================
+             [TL]  LEFT  :  Order History  (Timeline)
+             ============================================================ -->
+        <section aria-label="Order history">
+          <p class="module-eyebrow">Order History</p>
+          <h2 class="module-title">Acquisitions</h2>
+
+          <ol class="timeline">
+            <li class="timeline__item">
+              <span class="timeline__dot"></span>
+              <time class="timeline__date" datetime="2026-06-15">15 Jun 2026</time>
+              <h3 class="timeline__title">Sky-blue Mei vase</h3>
+              <p class="timeline__meta">Lot 014 &middot; Size M &middot; Moon-white glaze</p>
+              <div class="timeline__foot">
+                <span class="timeline__price">$1,200</span>
+                <span class="timeline__status">Delivered</span>
+              </div>
+            </li>
+
+            <li class="timeline__item">
+              <span class="timeline__dot"></span>
+              <time class="timeline__date" datetime="2026-04-22">22 Apr 2026</time>
+              <h3 class="timeline__title">Tenmoku tea bowl</h3>
+              <p class="timeline__meta">Lot 021 &middot; Jianyang kiln</p>
+              <div class="timeline__foot">
+                <span class="timeline__price">$2,400</span>
+                <span class="timeline__status">Delivered</span>
+              </div>
+            </li>
+
+            <li class="timeline__item">
+              <span class="timeline__dot"></span>
+              <time class="timeline__date" datetime="2026-02-10">10 Feb 2026</time>
+              <h3 class="timeline__title">Hand-thrown celadon cup, pair</h3>
+              <p class="timeline__meta">Lot 008 &middot; Longquan celadon</p>
+              <div class="timeline__foot">
+                <span class="timeline__price">$680</span>
+                <span class="timeline__status">Delivered</span>
+              </div>
+            </li>
+          </ol>
+        </section>
+
+        <!-- ============================================================
+             [TG][EA]  RIGHT  :  Collector Profile + Apple toggle
+             ============================================================ -->
+        <section aria-label="Collector profile">
+          <p class="module-eyebrow">Collector Profile</p>
+          <h2 class="module-title">Your details</h2>
+
+          <div class="profile__email-block">
+            <p class="profile__label">Email</p>
+            <p class="profile__email">lorem.collector@example.com</p>
+          </div>
+
+          <hr class="profile__divider" />
+
+          <div class="toggle-row">
+            <label class="toggle" aria-label="Subscribe to Early Access Allocations">
+              <input class="toggle__input" type="checkbox" id="toggle-early-access" checked>
+              <span class="toggle__slider" aria-hidden="true"></span>
+            </label>
+            <label class="toggle__label" for="toggle-early-access">
+              Subscribe to Early Access Allocations
+              <span class="toggle__label-sub">Receive invitations before public release</span>
+            </label>
+          </div>
+
+          <a href="#" class="profile__signout">Sign out</a>
+        </section>
+
+      </div>
+
+      <!-- ============================================================
+           [Edit Profile]  -  v0.4.1 patch
+           面板下方新增的"藏家档案库"模块
+           ============================================================ -->
+      <section class="profile-edit-section" aria-label="Edit profile (submit for review)">
+        <p class="module-eyebrow">Edit Profile</p>
+        <h2 class="module-title">Personal information</h2>
+
+        <div class="profile-edit-grid">
+
+          <!-- Left : avatar + meta -->
+          <div>
+            <div class="profile-avatar">
+              <img src="https://picsum.photos/200/200?random=98" alt="Lorem ipsum avatar">
+            </div>
+            <div class="profile-avatar-info">
+              <p class="profile-avatar-name">Lorem Ipsum</p>
+              <p class="profile-avatar-loc">Hong Kong &middot; Collector since 2024</p>
+              <button class="profile-avatar-change" type="button">Change photo</button>
+            </div>
+          </div>
+
+          <!-- Right : form (with "submit for review" pattern) -->
+          <div>
+            <div class="profile-pending" id="profile-pending" role="status" aria-live="polite">
+              <span class="profile-pending__dot"></span>
+              <span>Submitted for review on <span id="profile-pending-date">06 Jul 2026</span> &middot; Awaiting editorial approval</span>
+            </div>
+
+            <form class="profile-form" id="profile-form" novalidate>
+              <div class="profile-form__field">
+                <label class="profile-form__label" for="profile-name">Display name</label>
+                <input class="profile-form__input" type="text" id="profile-name" name="name"
+                       value="Lorem Ipsum" autocomplete="name">
+              </div>
+              <div class="profile-form__field">
+                <label class="profile-form__label" for="profile-address">Shipping address</label>
+                <textarea class="profile-form__textarea" id="profile-address" name="address"
+                          rows="3" autocomplete="street-address">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor.</textarea>
+              </div>
+              <div class="profile-form__field">
+                <label class="profile-form__label" for="profile-avatar-file">Profile photo</label>
+                <input class="profile-form__input profile-form__file" type="file" id="profile-avatar-file" name="avatar" accept="image/*">
+              </div>
+              <button class="profile-submit" type="submit" id="profile-submit">Submit for review</button>
+              <p class="profile-submit-note">All changes are queued for editorial review before publishing. Direct save is not available &mdash; this protects the integrity of your collector profile.</p>
+            </form>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- Minimal account footer -->
+<footer class="account-footer">
+  <p>&copy; 2026 LLCCRAFT &middot; Lorem ipsum &middot; Privacy &middot; Terms &middot; Contact</p>
+</footer>
+
+<script>
+  /* ==========================================================================
+     P-09 Account JS  v1.0.0
+     ==========================================================================
+     Modules:
+       1. Global Sticky Header  (Phase 3.5)
+       2. Lang dropdown
+       3. Toggle state  (CSS-only -- no JS needed, but we sync the
+                          visual state on focus / change for any external
+                          integrations that might toggle programmatically)
+     ========================================================================== */
+
+  (function () {
+    /* 1. Global Sticky Header  (Phase 3.5 chassis) */
+    const header = document.getElementById('global-header');
+    if (header) {
+      let lastY = 0;
+      const onScroll = () => {
+        const y = window.scrollY;
+        const dir = y > lastY ? 'down' : 'up';
+        lastY = y;
+        if (y < 80) {
+          header.dataset.state = 'top';
+          header.classList.remove('is-scrolled-down', 'is-scrolled-up');
+        } else {
+          header.dataset.state = dir;
+          header.classList.toggle('is-scrolled-down', dir === 'down');
+          header.classList.toggle('is-scrolled-up', dir === 'up');
+        }
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }
+
+    /* 2. Lang dropdown */
+    const langBtn  = document.getElementById('lang-btn');
+    const langMenu = document.getElementById('lang-menu');
+    if (langBtn && langMenu) {
+      const toggle = (open) => {
+        const isOpen = open ?? !langMenu.classList.contains('is-open');
+        langMenu.classList.toggle('is-open', isOpen);
+        langBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      };
+      langBtn.addEventListener('click', (e) => { e.stopPropagation(); toggle(); });
+      langMenu.addEventListener('click', (e) => {
+        const item = e.target.closest('[data-lang]');
+        if (item) {
+          langMenu.querySelectorAll('button').forEach((b) => b.classList.remove('is-active'));
+          item.classList.add('is-active');
+          const cur = langBtn.querySelector('[data-current-lang]');
+          if (cur) cur.textContent = item.textContent;
+          toggle(false);
+        }
+      });
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.global-header__lang')) toggle(false);
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && langMenu.classList.contains('is-open')) {
+          toggle(false);
+          langBtn.focus();
+        }
+      });
+    }
+
+    /* 3. Toggle :  CSS-only visual state,  no JS needed
+       (kept here as an integration hook for future programmatic toggle) */
+    const toggleInput = document.getElementById('toggle-early-access');
+    if (toggleInput) {
+      toggleInput.addEventListener('change', () => {
+        /* skeleton : would POST to /api/account/preferences */
+        // console.log('Early Access Allocations =', toggleInput.checked);
+      });
+    }
+
+    /* 4. Edit Profile  -  "Submit for review" pattern (v0.4.1 patch)
+       NOT a direct save.  Queues for editorial review. */
+    const profileForm = document.getElementById('profile-form');
+    const profilePending = document.getElementById('profile-pending');
+    const profileSubmit = document.getElementById('profile-submit');
+    const profileDate = document.getElementById('profile-pending-date');
+    if (profileForm && profileSubmit) {
+      profileForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const data = {
+          name: profileForm.name ? profileForm.name.value : '',
+          address: profileForm.address ? profileForm.address.value : '',
+          avatar: profileForm.avatar && profileForm.avatar.files[0]
+            ? profileForm.avatar.files[0].name : '',
+        };
+        /* skeleton : would POST to /api/account/profile/review
+           then wait for admin approval before showing "Approved" / "Rejected" state. */
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('en-GB', {
+          day: '2-digit', month: 'short', year: 'numeric'
+        });
+        if (profileDate) profileDate.textContent = dateStr;
+        if (profilePending) profilePending.classList.add('is-open');
+        profileSubmit.disabled = true;
+        profileSubmit.textContent = 'Submitted · Pending review';
+        console.log('Profile queued for review:', data);
+      });
+    }
+
+    /* 5. Change photo button  -  triggers hidden file input */
+    const changePhotoBtn = document.querySelector('.profile-avatar-change');
+    const avatarFileInput = document.getElementById('profile-avatar-file');
+    if (changePhotoBtn && avatarFileInput) {
+      changePhotoBtn.addEventListener('click', () => avatarFileInput.click());
+    }
+  })();
+</script>
+
+</body>
+</html>

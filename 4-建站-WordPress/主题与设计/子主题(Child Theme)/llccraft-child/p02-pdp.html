@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLCCRAFT · P-02 PDP · v0.5.0</title>
+<meta name="description" content="LLCCRAFT P-02 Product Detail Page skeleton. v0.5.0. Inherits P-01 v0.4.1.5 constitution (Helvetica Regular, Lumina footer, Impeccable A11Y).">
+
+<!--
+  ============================================================================
+  P-02 PDP · v0.5.0 · STATIC SKELETON · 2026-07-06
+  ============================================================================
+  Inherits from P-01 v0.4.1.5 (LOCKED 2026-07-06, MD5 a4f0934dbf7e96605ccaa74dc0651340):
+    - Helvetica Regular @font-face (5 formats)
+    - Impeccable A11Y / WCAG 2.1 AA / reduced-motion / skiplink
+    - Lumina 14-line CSS (footer 100% 复用 verbatim)
+    - 商业护城河: NO countdown, NO red strikethrough, NO sale badge
+  New for P-02 (Tenmokus 对标):
+    [G] Gallery      :  left multi-image vertical scroll
+    [S] Sticky info  :  right column position:sticky (below nav)
+    [V] Variant pill :  custom radios (NOT native select)  + arrow-key nav
+    [Q] Quantity     :  custom -/+ buttons (NOT native input) + 1-99 clamp
+    [D] Drawer cart  :  right slide-in, NO page refresh + Esc close + focus mgmt
+  ============================================================================
+-->
+
+<!-- Tailwind Play CDN : self-contained skeleton render -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          'gallery':  'oklch(0.97 0.012 90)',
+          'ink':      'oklch(0.20 0.010 28)',
+          'ink-soft': 'oklch(0.55 0.008 28)',
+          'rule':     'oklch(0.88 0.005 28)',
+        },
+        fontFamily: {
+          serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+          sans:  ['"Helvetica Regular"', '"Inter"', 'system-ui', 'sans-serif'],
+        },
+        maxWidth: { 'wide': '1320px' },
+      }
+    }
+  }
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  /* ==========================================================================
+     P-02 PDP v0.5.0  -  Product Detail Page
+     ==========================================================================
+     Constitution carry-overs (P-01 v0.4.1.5 复用):
+       - Helvetica Regular @font-face  (5 格式 CDN)
+       - Impeccable 宪法 :  A11Y skiplink / focus-visible / reduced-motion
+       - WCAG 2.1 AA  :  contrast / keyboard / aria
+       - Lumina 14-line CSS  :  §6 复用 verbatim
+       - 商业护城河  :  NO countdown / NO red strikethrough / NO sale badge
+     ========================================================================== */
+
+  /* ---------- F1 : Helvetica Regular @font-face (inherited, ACTIVE) ---------- */
+  @font-face {
+    font-family: "Helvetica Regular";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.eot");
+    src: url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.eot?#iefix")format("embedded-opentype"),
+         url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.woff2")format("woff2"),
+         url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.woff")format("woff"),
+         url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.ttf")format("truetype"),
+         url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.svg#Helvetica Regular")format("svg");
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: oklch(0.97 0.012 90);
+    color: oklch(0.20 0.010 28);
+    font-family: "Helvetica Regular", "Inter", system-ui, -apple-system, sans-serif;
+    font-size: 16px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- A11Y ---------- */
+  .skiplink {
+    position: fixed; top: -100px; left: 12px; z-index: 200;
+    padding: 8px 24px; background: #000; color: #fff;
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    border-radius: 2px; text-decoration: none; font-weight: 500;
+    transition: top 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .skiplink:focus { top: 12px; }
+  :focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ====================================================================
+     1.  Global Sticky Header  (v0.5.1 chassis - PHASE 3.5)
+     ==================================================================== */
+  .global-header {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition: background 320ms ease, backdrop-filter 320ms ease,
+                border-color 320ms ease;
+  }
+  .global-header.is-scrolled-down {
+    background: rgba(15, 15, 15, 0.5);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+  .global-header.is-scrolled-up {
+    background: transparent;
+    backdrop-filter: none;
+    border-bottom-color: transparent;
+  }
+  .global-header__inner {
+    max-width: 1320px; margin: 0 auto;
+    padding: 18px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 32px;
+  }
+  .global-header__brand {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 22px; font-weight: 500;
+    color: #fff; text-decoration: none;
+    letter-spacing: -0.005em; flex-shrink: 0;
+  }
+  .global-header__actions { display: flex; align-items: center; gap: 24px; }
+  .global-header__lang { position: relative; }
+  .global-header__lang-btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: transparent; border: none; padding: 6px 8px;
+    color: #fff; cursor: pointer;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 12px; letter-spacing: 0.05em;
+    border-radius: 4px; transition: background 200ms ease;
+  }
+  .global-header__lang-btn:hover { background: rgba(255, 255, 255, 0.08); }
+  .global-header__lang-caret { width: 10px; height: 10px; fill: currentColor; }
+  .global-header__lang-menu {
+    position: absolute; top: calc(100% + 8px); right: 0;
+    background: oklch(0.18 0.012 28 / 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px; padding: 4px 0;
+    min-width: 100px; list-style: none; margin: 0;
+    opacity: 0; visibility: hidden; transform: translateY(-4px);
+    transition: opacity 200ms ease, transform 200ms ease, visibility 200ms ease;
+    z-index: 110;
+  }
+  .global-header__lang-menu.is-open { opacity: 1; visibility: visible; transform: translateY(0); }
+  .global-header__lang-menu button {
+    display: block; width: 100%; padding: 8px 16px;
+    background: transparent; border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 12px; letter-spacing: 0.05em;
+    text-align: left; cursor: pointer;
+    transition: background 200ms ease, color 200ms ease;
+  }
+  .global-header__lang-menu button:hover,
+  .global-header__lang-menu button.is-active {
+    background: rgba(255, 255, 255, 0.08); color: #fff;
+  }
+  .global-header__social {
+    display: flex; align-items: center; gap: 12px;
+    list-style: none; padding: 0; margin: 0;
+  }
+  .global-header__social a {
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px;
+    color: #fff; opacity: 0.7;
+    text-decoration: none; transition: opacity 200ms ease;
+  }
+  .global-header__social a:hover { opacity: 1; }
+  .global-header__social svg { width: 16px; height: 16px; fill: currentColor; }
+  .global-header__icons { display: flex; align-items: center; gap: 4px; }
+  .global-header__icon-btn,
+  .global-header__icon-link {
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px;
+    background: transparent; border: none;
+    color: #fff; opacity: 0.85;
+    text-decoration: none; cursor: pointer; border-radius: 50%;
+    transition: opacity 200ms ease, background 200ms ease;
+  }
+  .global-header__icon-btn:hover,
+  .global-header__icon-link:hover { opacity: 1; background: rgba(255, 255, 255, 0.08); }
+  .global-header__icon-btn svg,
+  .global-header__icon-link svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+  .global-header__cart-badge {
+    position: absolute; top: 4px; right: 4px;
+    min-width: 16px; height: 16px; padding: 0 4px;
+    display: flex; align-items: center; justify-content: center;
+    background: oklch(0.42 0.165 27);
+    color: #fff;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 10px; font-weight: 500;
+    border-radius: 999px; line-height: 1;
+  }
+
+  /* ====================================================================
+     2.  PDP layout  -  gallery (left) + sticky info (right)
+     ==================================================================== */
+  .pdp {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 480px;
+    gap: 64px;
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 120px 24px 80px;  /* 120 top = nav clearance */
+  }
+  @media (max-width: 960px) {
+    .pdp {
+      grid-template-columns: 1fr;
+      gap: 48px;
+      padding: 96px 16px 64px;
+    }
+  }
+
+  /* [G] Gallery :  multi-image vertical scroll */
+  .pdp__gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .pdp__image {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: oklch(0.93 0.005 28);
+    overflow: hidden;
+  }
+  .pdp__image img {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .pdp__image:hover img { transform: scale(1.02); }
+
+  /* [S] Sticky info column */
+  .pdp__info {
+    position: sticky;
+    top: 96px;  /* below nav */
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-right: 8px;
+    /* hide scrollbar visually but keep functional */
+    scrollbar-width: thin;
+    scrollbar-color: oklch(0.85 0.005 28) transparent;
+  }
+  @media (max-width: 960px) {
+    .pdp__info { position: static; max-height: none; }
+  }
+
+  .pdp__breadcrumb {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: oklch(0.55 0.008 28); margin: 0;
+  }
+  .pdp__title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(1.75rem, 2.5vw, 2.5rem);
+    font-weight: 500; line-height: 1.1;
+    margin: 0; color: oklch(0.20 0.010 28);
+    letter-spacing: -0.01em;
+  }
+  .pdp__subtitle {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: 16px; color: oklch(0.55 0.008 28);
+    margin: -16px 0 0;
+  }
+
+  .pdp__rating {
+    display: flex; align-items: center; gap: 2px;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+  }
+  .pdp__rating .star { color: oklch(0.72 0.025 85); font-size: 14px; line-height: 1; }
+  .pdp__rating .rating-count {
+    margin-left: 10px; color: oklch(0.55 0.008 28);
+    font-size: 12px; letter-spacing: 0.02em;
+  }
+
+  .pdp__price {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 24px; font-weight: 500;
+    color: oklch(0.20 0.010 28); margin: 0;
+    letter-spacing: -0.005em;
+    /* v0.5.0 : single-color premium, NO red/black discount contrast */
+  }
+
+  .pdp__specs {
+    display: flex; justify-content: space-between;
+    padding: 16px 0;
+    border-top: 1px solid oklch(0.88 0.005 28);
+    border-bottom: 1px solid oklch(0.88 0.005 28);
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 12px; color: oklch(0.55 0.008 28);
+  }
+  .spec {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .spec__icon {
+    display: flex; align-items: center; justify-content: center;
+    width: 18px; height: 18px;
+    color: oklch(0.42 0.012 28); flex-shrink: 0;
+  }
+  .spec__icon svg { display: block; }
+  .spec__label { font-weight: 500; }
+
+  /* ====================================================================
+     3.  [V] Variant pill selector  -  custom radios, NOT native select
+     ==================================================================== */
+  .pdp__variant-group {
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .pdp__variant-label {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: oklch(0.55 0.008 28); margin: 0; font-weight: 500;
+  }
+  .pdp__variant-options {
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .pdp__pill {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 10px 18px;
+    background: transparent;
+    color: oklch(0.20 0.010 28);
+    border: 1px solid oklch(0.20 0.010 28 / 0.4);
+    border-radius: 999px;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 13px; font-weight: 500;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
+  }
+  .pdp__pill:hover {
+    background: oklch(0.20 0.010 28 / 0.06);
+    border-color: oklch(0.20 0.010 28 / 0.8);
+  }
+  .pdp__pill.is-active {
+    background: oklch(0.20 0.010 28);
+    color: oklch(0.97 0.012 90);
+    border-color: oklch(0.20 0.010 28);
+  }
+  .pdp__pill:focus-visible {
+    outline: 2px solid oklch(0.42 0.165 27);
+    outline-offset: 2px;
+  }
+
+  /* ====================================================================
+     4.  [Q] Quantity stepper  -  custom -/+, NOT native input
+     ==================================================================== */
+  .pdp__qty {
+    display: inline-flex; align-items: stretch;
+    border: 1px solid oklch(0.20 0.010 28 / 0.4);
+    border-radius: 999px;
+    overflow: hidden;
+    width: fit-content;
+  }
+  .pdp__qty-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px;
+    background: transparent; border: none;
+    color: oklch(0.20 0.010 28);
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 18px; cursor: pointer;
+    transition: background 200ms ease, color 200ms ease;
+  }
+  .pdp__qty-btn:hover {
+    background: oklch(0.20 0.010 28 / 0.08);
+  }
+  .pdp__qty-btn:disabled {
+    color: oklch(0.55 0.008 28);
+    cursor: not-allowed;
+  }
+  .pdp__qty-value {
+    display: flex; align-items: center; justify-content: center;
+    min-width: 48px; padding: 0 8px;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 14px; font-weight: 500;
+    color: oklch(0.20 0.010 28);
+    border-left: 1px solid oklch(0.20 0.010 28 / 0.2);
+    border-right: 1px solid oklch(0.20 0.010 28 / 0.2);
+  }
+
+  /* ====================================================================
+     5.  Acquisition CTA  -  opens drawer (NO page refresh)
+     ==================================================================== */
+  .pdp__cta {
+    display: block; width: 100%;
+    padding: 20px 32px;
+    background: oklch(0.20 0.010 28);
+    color: oklch(0.97 0.012 90);
+    border: none; border-radius: 999px;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 13px; font-weight: 500;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    cursor: pointer;
+    transition: background 240ms ease, transform 100ms ease;
+  }
+  .pdp__cta:hover { background: oklch(0.42 0.165 27); }
+  .pdp__cta:active { transform: scale(0.99); }
+
+  .pdp__note {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; letter-spacing: 0.05em;
+    color: oklch(0.55 0.008 28); margin: 0; text-align: center;
+  }
+
+  /* ====================================================================
+     6.  [D] Drawer Cart  -  right slide-in, NO page refresh
+     ==================================================================== */
+  .drawer-backdrop {
+    position: fixed; inset: 0; z-index: 199;
+    background: rgba(0, 0, 0, 0.4);
+    opacity: 0; visibility: hidden;
+    transition: opacity 280ms ease, visibility 280ms ease;
+  }
+  .drawer-backdrop.is-open { opacity: 1; visibility: visible; }
+
+  .drawer {
+    position: fixed; top: 0; right: 0; bottom: 0;
+    z-index: 200;
+    width: 480px; max-width: 100vw;
+    background: oklch(0.97 0.012 90);
+    transform: translateX(100%);
+    transition: transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex; flex-direction: column;
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.08);
+  }
+  .drawer.is-open { transform: translateX(0); }
+
+  .drawer__header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 24px;
+    border-bottom: 1px solid oklch(0.88 0.005 28);
+  }
+  .drawer__title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 22px; font-weight: 500;
+    margin: 0; color: oklch(0.20 0.010 28);
+    letter-spacing: -0.005em;
+  }
+  .drawer__close {
+    width: 36px; height: 36px;
+    background: transparent; border: none;
+    color: oklch(0.20 0.010 28);
+    font-size: 22px; line-height: 1;
+    cursor: pointer; border-radius: 50%;
+    transition: background 200ms ease;
+  }
+  .drawer__close:hover { background: oklch(0.20 0.010 28 / 0.08); }
+
+  .drawer__body {
+    flex: 1; overflow-y: auto;
+    padding: 24px;
+  }
+  .drawer__empty {
+    text-align: center; padding: 64px 16px;
+    color: oklch(0.55 0.008 28);
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 13px;
+  }
+
+  .drawer__item {
+    display: grid; grid-template-columns: 80px 1fr;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid oklch(0.88 0.005 28);
+  }
+  .drawer__item:last-child { border-bottom: none; }
+  .drawer__item-image {
+    width: 80px; height: 80px;
+    background: oklch(0.93 0.005 28);
+    overflow: hidden;
+  }
+  .drawer__item-image img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  .drawer__item-meta {
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .drawer__item-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 16px; font-weight: 500;
+    margin: 0; color: oklch(0.20 0.010 28);
+    letter-spacing: -0.005em;
+  }
+  .drawer__item-variant {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; color: oklch(0.55 0.008 28); margin: 0;
+    letter-spacing: 0.02em;
+  }
+  .drawer__item-qty {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; color: oklch(0.55 0.008 28); margin: 0;
+    letter-spacing: 0.02em;
+  }
+  .drawer__item-price {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 13px; font-weight: 500;
+    color: oklch(0.20 0.010 28); margin: 4px 0 0;
+  }
+  .drawer__item-remove {
+    align-self: flex-start;
+    background: transparent; border: none; padding: 0;
+    color: oklch(0.55 0.008 28);
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase;
+    cursor: pointer; margin-top: 6px;
+    text-decoration: underline;
+  }
+  .drawer__item-remove:hover { color: oklch(0.42 0.165 27); }
+
+  .drawer__footer {
+    padding: 24px;
+    border-top: 1px solid oklch(0.88 0.005 28);
+    background: oklch(0.97 0.012 90);
+  }
+  .drawer__subtotal {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .drawer__subtotal-label {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase;
+    color: oklch(0.55 0.008 28);
+  }
+  .drawer__subtotal-value {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 24px; font-weight: 500;
+    color: oklch(0.20 0.010 28);
+  }
+  .drawer__shipping {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; color: oklch(0.55 0.008 28);
+    margin: 0 0 16px;
+  }
+  .drawer__checkout {
+    display: block; width: 100%;
+    padding: 16px 32px;
+    background: oklch(0.20 0.010 28);
+    color: oklch(0.97 0.012 90);
+    border: none; border-radius: 999px;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 13px; font-weight: 500;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    cursor: pointer;
+    transition: background 240ms ease;
+  }
+  .drawer__checkout:hover { background: oklch(0.42 0.165 27); }
+  .drawer__continue {
+    display: block; width: 100%;
+    padding: 12px 32px;
+    background: transparent;
+    color: oklch(0.55 0.008 28);
+    border: none;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase;
+    cursor: pointer; margin-top: 8px;
+  }
+  .drawer__continue:hover { color: oklch(0.20 0.010 28); }
+
+  /* ====================================================================
+     7.  Lumina Liquid Glass footer  -  14-line CSS verbatim (LOCKED)
+         + video bg + glass overlay + content stack
+     ==================================================================== */
+  .liquid-glass {
+    background: rgba(255, 255, 255, 0.01);
+    background-blend-mode: luminosity;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: none;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  .liquid-glass::before {
+    content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1.4px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 20%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%, rgba(255,255,255,0.15) 80%, rgba(255,255,255,0.45) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
+  }
+  .footer__bg {
+    position: absolute; inset: 0; z-index: 0;
+    width: 100%; height: 100%; object-fit: cover;
+    opacity: 0.55;
+  }
+  .footer__glass {
+    position: absolute; inset: 0; z-index: 0;
+  }
+  .footer__content {
+    position: relative; z-index: 1;
+  }
+</style>
+</head>
+<body>
+
+<!-- A11Y skiplink -->
+<a href="#main" class="skiplink">Skip to main content</a>
+
+<!-- 1. Global Sticky Header  (PHASE 3.5 chassis) -->
+<header class="global-header" data-state="top" id="global-header">
+  <div class="global-header__inner">
+
+    <a href="p01-home.html" class="global-header__brand">LLCCRAFT</a>
+
+    <div class="global-header__actions">
+
+      <div class="global-header__lang">
+        <button class="global-header__lang-btn" id="lang-btn" type="button"
+                aria-haspopup="true" aria-expanded="false" aria-controls="lang-menu">
+          <span data-current-lang>EN</span>
+          <svg class="global-header__lang-caret" viewBox="0 0 10 10" aria-hidden="true">
+            <path d="M2 4l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <ul class="global-header__lang-menu" id="lang-menu" role="menu" aria-label="Language">
+          <li role="none"><button role="menuitem" data-lang="en" class="is-active">EN</button></li>
+          <li role="none"><button role="menuitem" data-lang="zh">中文</button></li>
+          <li role="none"><button role="menuitem" data-lang="fr">FR</button></li>
+          <li role="none"><button role="menuitem" data-lang="ja">日本語</button></li>
+        </ul>
+      </div>
+
+      <ul class="global-header__social" aria-label="Social">
+        <li><a href="#" aria-label="Instagram">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <rect x="2" y="2" width="12" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="8" cy="8" r="2.6" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="11.6" cy="4.4" r="0.7" fill="currentColor"/>
+          </svg>
+        </a></li>
+        <li><a href="#" aria-label="WeChat">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <ellipse cx="6" cy="7" rx="5" ry="4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <ellipse cx="11" cy="10" rx="3.5" ry="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="4.7" cy="6" r="0.45" fill="currentColor"/>
+            <circle cx="7.3" cy="6" r="0.45" fill="currentColor"/>
+            <circle cx="10.4" cy="9.5" r="0.35" fill="currentColor"/>
+          </svg>
+        </a></li>
+        <li><a href="#" aria-label="Weibo">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <ellipse cx="8" cy="8.5" rx="6" ry="4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="6" cy="9" r="0.4" fill="currentColor"/>
+            <circle cx="9" cy="8" r="0.4" fill="currentColor"/>
+          </svg>
+        </a></li>
+      </ul>
+
+      <div class="global-header__icons">
+        <button class="global-header__icon-btn" id="search-btn" type="button" aria-label="Search">
+          <svg viewBox="0 0 18 18" aria-hidden="true">
+            <circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M12 12l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <a href="p05-auth.html" class="global-header__icon-link" aria-label="Account">
+          <svg viewBox="0 0 18 18" aria-hidden="true">
+            <circle cx="9" cy="6.5" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M3 16c0-3 3-5 6-5s6 2 6 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </a>
+        <button class="global-header__icon-btn global-header__cart" id="cart-btn" type="button" aria-label="Cart">
+          <svg viewBox="0 0 18 18" aria-hidden="true">
+            <path d="M3 5h2l1.5 8h7l1.5-6H6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <circle cx="7.5" cy="15.5" r="1" fill="currentColor"/>
+            <circle cx="12.5" cy="15.5" r="1" fill="currentColor"/>
+          </svg>
+          
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ====================================================================
+     2.  PDP main  -  [G] gallery (left) + [S] sticky info (right)
+     ==================================================================== -->
+<section class="pdp" aria-label="Product detail">
+
+  <!-- LEFT : Gallery (5 multi-image, vertical scroll) -->
+  <div class="pdp__gallery" aria-label="Piece gallery">
+    <div class="pdp__image"><img src="https://picsum.photos/800/800?random=20" alt="Lorem ipsum piece - view 1 of 5" loading="lazy"></div>
+    <div class="pdp__image"><img src="https://picsum.photos/800/800?random=21" alt="Lorem ipsum piece - view 2 of 5" loading="lazy"></div>
+    <div class="pdp__image"><img src="https://picsum.photos/800/800?random=22" alt="Lorem ipsum piece - view 3 of 5" loading="lazy"></div>
+    <div class="pdp__image"><img src="https://picsum.photos/800/800?random=23" alt="Lorem ipsum piece - view 4 of 5" loading="lazy"></div>
+    <div class="pdp__image"><img src="https://picsum.photos/800/800?random=24" alt="Lorem ipsum piece - view 5 of 5" loading="lazy"></div>
+  </div>
+
+  <!-- RIGHT : Sticky info column -->
+  <aside class="pdp__info" aria-label="Piece details and purchase options">
+
+    <p class="pdp__breadcrumb">Lorem ipsum · Lot 014 · Contemporary Ru ware</p>
+
+    <div>
+      <h1 class="pdp__title">Lorem ipsum sky-blue Mei vase</h1>
+      <p class="pdp__subtitle">Hand-thrown reduction fired, signed by maker</p>
+    </div>
+
+    <div class="pdp__rating" aria-label="5 out of 5 stars from 24 reviews">
+      <span class="star" aria-hidden="true">&#9733;</span>
+      <span class="star" aria-hidden="true">&#9733;</span>
+      <span class="star" aria-hidden="true">&#9733;</span>
+      <span class="star" aria-hidden="true">&#9733;</span>
+      <span class="star" aria-hidden="true">&#9733;</span>
+      <span class="rating-count">(24 reviews)</span>
+    </div>
+
+    <p class="pdp__price">USD 1,200</p>
+
+    <div class="pdp__specs">
+      <div class="spec">
+        <span class="spec__icon" aria-label="Capacity">
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+            <path d="M5 2v3M11 2v3M3 5h10v3a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V5z"/>
+          </svg>
+        </span>
+        <span class="spec__label">280 ml</span>
+      </div>
+      <div class="spec">
+        <span class="spec__icon" aria-label="Diameter">
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+            <circle cx="8" cy="8" r="6"/>
+            <path d="M2 8h12"/>
+          </svg>
+        </span>
+        <span class="spec__label">12.5 cm</span>
+      </div>
+      <div class="spec">
+        <span class="spec__icon" aria-label="Depth">
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+            <path d="M3 2h10v9l-5 3-5-3V2z"/>
+          </svg>
+        </span>
+        <span class="spec__label">8.0 cm</span>
+      </div>
+    </div>
+
+    <!-- [V] Variant 1 : Size -->
+    <div class="pdp__variant-group">
+      <p class="pdp__variant-label" id="variant-size-label">Size</p>
+      <div class="pdp__variant-options" role="radiogroup" aria-labelledby="variant-size-label" data-variant-group="size">
+        <button class="pdp__pill" role="radio" aria-checked="false" tabindex="-1" data-value="S">Small &middot; S</button>
+        <button class="pdp__pill is-active" role="radio" aria-checked="true" tabindex="0" data-value="M">Medium &middot; M</button>
+        <button class="pdp__pill" role="radio" aria-checked="false" tabindex="-1" data-value="L">Large &middot; L</button>
+      </div>
+    </div>
+
+    <!-- [V] Variant 2 : Glaze -->
+    <div class="pdp__variant-group">
+      <p class="pdp__variant-label" id="variant-glaze-label">Glaze</p>
+      <div class="pdp__variant-options" role="radiogroup" aria-labelledby="variant-glaze-label" data-variant-group="glaze">
+        <button class="pdp__pill" role="radio" aria-checked="false" tabindex="-1" data-value="sky">Sky-blue</button>
+        <button class="pdp__pill is-active" role="radio" aria-checked="true" tabindex="0" data-value="moon">Moon-white</button>
+        <button class="pdp__pill" role="radio" aria-checked="false" tabindex="-1" data-value="sunset">Sunset-amber</button>
+      </div>
+    </div>
+
+    <!-- [Q] Quantity -->
+    <div class="pdp__variant-group">
+      <p class="pdp__variant-label" id="qty-label">Quantity</p>
+      <div class="pdp__qty" role="group" aria-labelledby="qty-label">
+        <button class="pdp__qty-btn" id="qty-decrement" type="button" aria-label="Decrease quantity">&minus;</button>
+        <span class="pdp__qty-value" id="qty-value" aria-live="polite">1</span>
+        <button class="pdp__qty-btn" id="qty-increment" type="button" aria-label="Increase quantity">&plus;</button>
+      </div>
+    </div>
+
+    <!-- 5. Acquisition CTA :  opens drawer (NO page refresh) -->
+    <button id="pdp-add" class="pdp__cta" type="button">Add to acquisition</button>
+    <p class="pdp__note">Free white-glove delivery &middot; 14-day authenticity review</p>
+  </aside>
+</section>
+
+</main>
+
+<!-- ====================================================================
+     [D] Drawer Cart  -  right slide-in, NO page refresh
+     ==================================================================== -->
+<div class="drawer-backdrop" id="drawer-backdrop" aria-hidden="true"></div>
+
+<aside class="drawer" id="drawer" aria-label="Acquisition cart" aria-hidden="true">
+  <header class="drawer__header">
+    <h2 class="drawer__title">Acquisition</h2>
+    <button class="drawer__close" id="drawer-close" type="button" aria-label="Close cart">&times;</button>
+  </header>
+
+  <div class="drawer__body" id="drawer-body">
+    <!-- items injected by JS -->
+  </div>
+
+  <footer class="drawer__footer">
+    <div class="drawer__subtotal">
+      <span class="drawer__subtotal-label">Subtotal</span>
+      <span class="drawer__subtotal-value" id="drawer-subtotal">USD 0</span>
+    </div>
+    <p class="drawer__shipping">Shipping &amp; provenance review calculated at next step</p>
+    <button class="drawer__checkout" id="drawer-checkout" type="button">Proceed to acquisition</button>
+    <button class="drawer__continue" id="drawer-continue" type="button">Continue browsing</button>
+  </footer>
+</aside>
+
+<!-- ====================================================================
+     Lumina Liquid Glass footer  (P-01 v0.4.1.5 100% 复用 verbatim)
+     ==================================================================== -->
+<footer class="relative overflow-hidden" style="isolation: isolate; border-radius: 0; margin-top: 96px; min-height: 480px;">
+
+  <video class="footer__bg" autoplay loop muted playsinline>
+    <source src="{{hero.video.url}}" data-placeholder="hero-video.mp4" type="video/mp4">
+  </video>
+
+  <div class="liquid-glass footer__glass"></div>
+
+  <div class="footer__content" style="padding: 96px 24px 32px;">
+    <div class="max-w-wide mx-auto" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 48px;">
+      <div>
+        <h3 class="font-serif text-2xl mb-4" style="font-family: 'Cormorant Garamond', serif; font-weight: 500;">LLCCRAFT</h3>
+        <p class="text-sm" style="color: oklch(0.20 0.010 28); opacity: 0.7;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor.</p>
+      </div>
+      <div>
+        <h4 class="text-xs uppercase mb-4" style="letter-spacing: 0.18em; color: oklch(0.55 0.008 28);">Collections</h4>
+        <ul style="list-style: none; padding: 0; margin: 0;">
+          <li style="margin-bottom: 8px;"><a href="#" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Contemporary Ru ware</a></li>
+          <li style="margin-bottom: 8px;"><a href="#" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Jingdezhen blue-and-white</a></li>
+          <li style="margin-bottom: 8px;"><a href="#" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Reserved & Commission</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs uppercase mb-4" style="letter-spacing: 0.18em; color: oklch(0.55 0.008 28);">Atelier</h4>
+        <ul style="list-style: none; padding: 0; margin: 0;">
+          <li style="margin-bottom: 8px;"><a href="#" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Master Liu</a></li>
+          <li style="margin-bottom: 8px;"><a href="#" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Master Chen</a></li>
+          <li style="margin-bottom: 8px;"><a href="#" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Provenance</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs uppercase mb-4" style="letter-spacing: 0.18em; color: oklch(0.55 0.008 28);">Acquisition</h4>
+        <ul style="list-style: none; padding: 0; margin: 0;">
+          <li style="margin-bottom: 8px;"><a href="#" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Direct purchase</a></li>
+          <li style="margin-bottom: 8px;"><a href="#" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Private inquiry</a></li>
+          <li style="margin-bottom: 8px;"><a href="#" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="max-w-wide mx-auto" style="margin-top: 64px; padding-top: 24px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; border-top: 1px solid oklch(0.20 0.010 28 / 0.1);">
+      <p class="text-xs" style="color: oklch(0.55 0.008 28);">&copy; 2026 LLCCRAFT &middot; Lorem ipsum</p>
+      <p class="text-xs" style="color: oklch(0.55 0.008 28);">Privacy &middot; Terms &middot; Contact</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* ==========================================================================
+     P-02 PDP JS  v0.5.0
+     ==========================================================================
+     Modules (all custom, no page refresh):
+       1. Sticky nav scroll effect
+       2. Variant pill roving-tabindex + arrow-key navigation
+       3. Quantity stepper  (1-99 clamp)
+       4. Drawer open/close  (slide-in + Esc + focus mgmt)
+       5. Add-to-cart  (in-memory state, render into drawer)
+       6. Remove-from-cart
+     ========================================================================== */
+
+  (function () {
+    /* ---------- 1. Global Sticky Header  (PHASE 3.5 chassis) ---------- */
+    const header = document.getElementById('global-header');
+    if (header) {
+      let lastY = 0;
+      const onScroll = () => {
+        const y = window.scrollY;
+        const dir = y > lastY ? 'down' : 'up';
+        lastY = y;
+        if (y < 80) {
+          header.dataset.state = 'top';
+          header.classList.remove('is-scrolled-down', 'is-scrolled-up');
+        } else {
+          header.dataset.state = dir;
+          header.classList.toggle('is-scrolled-down', dir === 'down');
+          header.classList.toggle('is-scrolled-up', dir === 'up');
+        }
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }
+
+    /* ---------- 1b. Lang dropdown ---------- */
+    const langBtn  = document.getElementById('lang-btn');
+    const langMenu = document.getElementById('lang-menu');
+    if (langBtn && langMenu) {
+      const toggle = (open) => {
+        const isOpen = open ?? !langMenu.classList.contains('is-open');
+        langMenu.classList.toggle('is-open', isOpen);
+        langBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      };
+      langBtn.addEventListener('click', (e) => { e.stopPropagation(); toggle(); });
+      langMenu.addEventListener('click', (e) => {
+        const item = e.target.closest('[data-lang]');
+        if (item) {
+          langMenu.querySelectorAll('button').forEach((b) => b.classList.remove('is-active'));
+          item.classList.add('is-active');
+          const cur = langBtn.querySelector('[data-current-lang]');
+          if (cur) cur.textContent = item.textContent;
+          toggle(false);
+        }
+      });
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.global-header__lang')) toggle(false);
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && langMenu.classList.contains('is-open')) {
+          toggle(false);
+          langBtn.focus();
+        }
+      });
+    }
+  })();
+
+  /* ---------- 2. Variant pill roving-tabindex + arrow-key nav ---------- */
+  (function () {
+    const groups = document.querySelectorAll('[data-variant-group]');
+    groups.forEach((group) => {
+      const pills = Array.from(group.querySelectorAll('.pdp__pill'));
+      const setActive = (pill) => {
+        pills.forEach((p) => {
+          const active = p === pill;
+          p.classList.toggle('is-active', active);
+          p.setAttribute('aria-checked', active ? 'true' : 'false');
+          p.tabIndex = active ? 0 : -1;
+        });
+      };
+      pills.forEach((pill) => {
+        pill.addEventListener('click', () => setActive(pill));
+        pill.addEventListener('keydown', (e) => {
+          const idx = pills.indexOf(pill);
+          if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            const next = pills[(idx + 1) % pills.length];
+            setActive(next); next.focus();
+          } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            const prev = pills[(idx - 1 + pills.length) % pills.length];
+            setActive(prev); prev.focus();
+          } else if (e.key === 'Home') {
+            e.preventDefault(); setActive(pills[0]); pills[0].focus();
+          } else if (e.key === 'End') {
+            e.preventDefault(); setActive(pills[pills.length - 1]); pills[pills.length - 1].focus();
+          }
+        });
+      });
+    });
+  })();
+
+  /* ---------- 3. Quantity stepper ---------- */
+  (function () {
+    const MIN = 1, MAX = 99;
+    const dec = document.getElementById('qty-decrement');
+    const inc = document.getElementById('qty-increment');
+    const val = document.getElementById('qty-value');
+    if (!dec || !inc || !val) return;
+    const clamp = (n) => Math.max(MIN, Math.min(MAX, n));
+    const setQty = (n) => {
+      const v = clamp(n);
+      val.textContent = v;
+      dec.disabled = v <= MIN;
+      inc.disabled = v >= MAX;
+      state.qty = v;
+    };
+    dec.addEventListener('click', () => setQty(parseInt(val.textContent, 10) - 1));
+    inc.addEventListener('click', () => setQty(parseInt(val.textContent, 10) + 1));
+    setQty(1);
+  })();
+
+  /* ---------- 4-6. Drawer + Cart state ---------- */
+  const state = { qty: 1, items: [] };
+
+  const VARIANT_LABELS = { size: 'Size', glaze: 'Glaze' };
+
+  function getSelectedVariants() {
+    const out = {};
+    document.querySelectorAll('[data-variant-group]').forEach((g) => {
+      const group = g.dataset.variantGroup;
+      const active = g.querySelector('.pdp__pill.is-active');
+      if (active) out[group] = active.dataset.value;
+    });
+    return out;
+  }
+
+  const drawer       = document.getElementById('drawer');
+  const backdrop     = document.getElementById('drawer-backdrop');
+  const drawerBody   = document.getElementById('drawer-body');
+  const drawerSub    = document.getElementById('drawer-subtotal');
+  const openBtn      = document.getElementById('cart-btn');
+  const addBtn       = document.getElementById('pdp-add');
+  const closeBtn     = document.getElementById('drawer-close');
+  const continueBtn  = document.getElementById('drawer-continue');
+  const checkoutBtn  = document.getElementById('drawer-checkout');
+
+  function openDrawer() {
+    drawer.classList.add('is-open');
+    backdrop.classList.add('is-open');
+    drawer.setAttribute('aria-hidden', 'false');
+    backdrop.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => closeBtn && closeBtn.focus(), 360);
+  }
+  function closeDrawer() {
+    drawer.classList.remove('is-open');
+    backdrop.classList.remove('is-open');
+    drawer.setAttribute('aria-hidden', 'true');
+    backdrop.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  function formatUSD(n) {
+    return 'USD ' + n.toLocaleString('en-US');
+  }
+
+  function renderDrawer() {
+    if (state.items.length === 0) {
+      drawerBody.innerHTML = '<p class="drawer__empty">No pieces selected yet.</p>';
+    } else {
+      drawerBody.innerHTML = state.items.map((it) => {
+        const variantsHTML = Object.keys(it.variants)
+          .map((k) => VARIANT_LABELS[k] + ': ' + it.variants[k])
+          .join(' &middot; ');
+        return [
+          '<article class="drawer__item" data-item-id="', it.id, '">',
+            '<div class="drawer__item-image"><img src="', it.image, '" alt=""></div>',
+            '<div class="drawer__item-meta">',
+              '<p class="drawer__item-title">', it.title, '</p>',
+              '<p class="drawer__item-variant">', variantsHTML, '</p>',
+              '<p class="drawer__item-qty">Qty ', it.qty, '</p>',
+              '<p class="drawer__item-price">', formatUSD(it.subtotal), '</p>',
+              '<button class="drawer__item-remove" data-remove-id="', it.id, '" type="button">Remove</button>',
+            '</div>',
+          '</article>'
+        ].join('');
+      }).join('');
+    }
+    const total = state.items.reduce((s, it) => s + it.subtotal, 0);
+    drawerSub.textContent = formatUSD(total);
+  }
+
+  function addToCart() {
+    const variants = getSelectedVariants();
+    const item = {
+      id: 'i_' + Date.now(),
+      title: 'Lorem ipsum sky-blue Mei vase',
+      image: 'https://picsum.photos/200/200?random=20',
+      price: 1200,
+      qty: state.qty,
+      variants: variants,
+      subtotal: 1200 * state.qty,
+    };
+    state.items.push(item);
+    renderDrawer();
+    openDrawer();
+  }
+
+  function removeFromCart(id) {
+    state.items = state.items.filter((it) => it.id !== id);
+    renderDrawer();
+  }
+
+  /* event wiring */
+  if (openBtn)     openBtn.addEventListener('click', openDrawer);
+  if (addBtn)      addBtn.addEventListener('click', addToCart);
+  if (closeBtn)    closeBtn.addEventListener('click', closeDrawer);
+  if (continueBtn) continueBtn.addEventListener('click', closeDrawer);
+  if (backdrop)    backdrop.addEventListener('click', closeDrawer);
+  if (drawerBody) {
+    drawerBody.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-remove-id]');
+      if (btn) removeFromCart(btn.dataset.removeId);
+    });
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && drawer.classList.contains('is-open')) {
+      closeDrawer();
+    }
+  });
+  if (checkoutBtn) {
+    checkoutBtn.addEventListener('click', () => {
+      /* skeleton : no real checkout - drawer just acknowledges */
+      alert('Skeleton: checkout would proceed to P-03 (Acquisition flow).\nCart has ' + state.items.length + ' item(s).');
+    });
+  }
+
+  /* initial render */
+  renderDrawer();
+</script>
+
+</body>
+</html>

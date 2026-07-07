@@ -1,56 +1,263 @@
+/* ============================================================================
+ * LLCCRAFT Sage-light  --  main.css entry  --  v1.0 + v0.3 LOCKED
+ * --------------------------------------------------------------------------
+ *  Build order :  tokens.css (SSOT :root)  -->  @tailwind layers  -->  components
+ *  Source-of-truth rule : never hardcode OKLCH / hex / sizes here; pull from
+ *  tokens.css via var(--xxx). Tailwind config mirrors the same vars.
+ *
+ *  Constitutional sources :
+ *    DESIGN.md S1-S10  +  v0.3 D-KILL-1..6 / D-S-1..7 / OBS-1 / OBS-2
+ *    Impeccable SKILL.src.md  +  WCAG 2.1 AA  +  v19 CI/CD iron rules
+ *  Encoding : pure ASCII + LF (no CRLF, no BOM)
+ * ========================================================================== */
+
+/* -- 0.  SSOT : tokens.css must load before tailwind layers -- */
+@import "./tokens.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* LLCCRAFT · 自建 6 个核心 component class · 中式留白 + 现代轻奢 */
-
+/* --------------------------------------------------------------------------
+ *  base layer : 70/8/5/2 ratio locked
+ * -------------------------------------------------------------------------- */
 @layer base {
-    body {
-        @apply font-sans text-ink bg-paper antialiased;
-    }
-    h1, h2, h3, h4, .h-serif {
-        @apply font-serif tracking-tight;
-    }
+  html, body { background: var(--surface); color: var(--ink-text); }
+  body {
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    line-height: var(--leading-ui);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1, h2, h3, h4, .h-serif {
+    font-family: var(--font-display);
+    letter-spacing: var(--tracking-heading-l);
+    color: var(--ink-body);
+  }
+  /* Chinese display titles : weight 800 + 96px ceiling (D-S-6) */
+  .h-cn-display {
+    font-family: var(--font-cn-display);
+    font-weight: 800;
+    color: var(--ink-body);
+  }
+  /* Editorial quote : italic serif, narrow column */
+  blockquote, .t-quote {
+    font-family: var(--font-quote);
+    font-style: italic;
+    color: var(--ink-text);
+    max-width: 50ch;
+  }
+  /* Long-form prose container : 65ch hard lock */
+  .editorial-prose { max-width: var(--w-prose); }
+  .editorial-prose p + p { margin-top: var(--space-6); }
+  hr { border: none; height: 1px; background: var(--rule); margin: var(--space-8) 0; }
 }
 
+/* --------------------------------------------------------------------------
+ *  component layer : the 6 locked classes  +  6 new v0.3 classes
+ *  - .product-card has been renamed to .piece-card per v0.2.1 D-02
+ * -------------------------------------------------------------------------- */
 @layer components {
-    /* 1. 主按钮 · 极简黑 + hover 霁红 */
-    .btn-primary {
-        @apply inline-flex items-center justify-center px-8 py-3
-               text-sm font-medium tracking-wider uppercase
-               border border-ink bg-ink text-paper
-               transition-colors duration-300 ease-soft
-               hover:bg-accent hover:border-accent hover:text-paper;
-    }
 
-    /* 2. 产品卡片 · 克制的画廊感 */
-    .product-card {
-        @apply bg-paper transition-shadow duration-300 ease-soft
-               hover:shadow-[0_2px_24px_-12px_rgba(14,14,14,0.18)];
-    }
-    .product-card__price {
-        @apply font-sans text-sm tracking-wide text-ink/80;
-    }
+  /* 1. 主按钮 : 极简黑 + hover 霁红 */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-3) var(--space-8);
+    background: var(--ink-body);
+    color: var(--surface);
+    border: 1px solid var(--ink-body);
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    font-size: var(--text-body-s);
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background var(--dur-base) var(--ease-out-expo),
+                border-color var(--dur-base) var(--ease-out-expo),
+                color var(--dur-base) var(--ease-out-expo);
+  }
+  .btn-primary:hover {
+    background: var(--accent-jihong);
+    border-color: var(--accent-jihong);
+    color: var(--surface);
+  }
 
-    /* 3. section 上下间距 · 留白黄金比例 */
-    .section-pad {
-        @apply py-16 md:py-24 lg:py-32 px-6 md:px-10
-               max-w-gutter mx-auto w-full;
-    }
+  /* 2. piece-card : 12px ceiling, no ghost-shadow, no side-stripe */
+  .piece-card {
+    background: var(--surface-warm);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);  /* 12px -- Impeccable ceiling */
+    padding: var(--space-8);
+    display: grid;
+    gap: var(--space-6);
+    transition: border-color var(--dur-base) var(--ease-out-expo);
+  }
+  .piece-card:hover { border-color: var(--ink-body); }
+  .piece-card__price {
+    font-family: var(--font-body);
+    font-size: var(--text-body-s);
+    color: var(--ink-soft);
+    letter-spacing: var(--tracking-body);
+  }
+  .piece-card__meta {
+    font-family: var(--font-body);
+    font-size: var(--text-caption);
+    color: var(--ink-mute);
+    letter-spacing: var(--tracking-caption);
+  }
 
-    /* 4. hero 边框 · 极细 1px ink */
-    .hero-frame {
-        @apply min-h-[70vh] md:min-h-[80vh] flex flex-col items-center justify-center
-               border-t border-ink px-6;
-    }
+  /* 3. section-pad : the breathing rhythm for every section */
+  .section-pad {
+    max-width: var(--w-default);
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    padding: var(--space-16) var(--space-6);
+  }
+  @media (min-width: 768px) {
+    .section-pad { padding: var(--space-24) var(--space-8); }
+  }
+  @media (min-width: 1024px) {
+    .section-pad { padding-top: var(--space-32); padding-bottom: var(--space-32); }
+  }
 
-    /* 5. 斜体衬线 · 副标题/落款 */
-    .italic-serif {
-        @apply font-serif italic tracking-tight text-ink/90;
-    }
+  /* 4. hero-frame : 70vh/80vh, 1px ink top, no shadow */
+  .hero-frame {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-top: 1px solid var(--ink-body);
+    padding-left: var(--space-6);
+    padding-right: var(--space-6);
+  }
+  @media (min-width: 768px) {
+    .hero-frame { min-height: 80vh; }
+  }
 
-    /* 6. 文本均衡 · 标题换行对齐 */
-    .text-balance {
-        text-wrap: balance;
-    }
+  /* 5. italic-serif : 引语 / 落款 */
+  .italic-serif {
+    font-family: var(--font-quote);
+    font-style: italic;
+    letter-spacing: var(--tracking-heading-l);
+    color: var(--ink-body);
+  }
+
+  /* 6. text-balance : 标题换行对齐 (Impeccable mandatory) */
+  .text-balance { text-wrap: balance; }
+
+  /* --- v0.3 NEW : editorial-prose long-form container (already in @layer base) --- */
+
+  /* --- v0.3 NEW : provenance-table two-column metadata (DESIGN.md §4.5) --- */
+  .provenance-table {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: var(--space-2) var(--space-6);
+    max-width: var(--w-narrow);
+  }
+  .provenance-table dt {
+    font-family: var(--font-body);
+    font-size: var(--text-caption);
+    color: var(--ink-mute);
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    padding: var(--space-2) 0;
+    border-top: 1px solid var(--rule);
+  }
+  .provenance-table dd {
+    font-family: var(--font-body);
+    font-size: var(--text-body-s);
+    color: var(--ink-text);
+    padding: var(--space-2) 0;
+    border-top: 1px solid var(--rule);
+  }
+
+  /* --- v0.3 NEW : inquiry-sticky-panel (Layer 2/3 single-piece pages) --- */
+  .inquiry-sticky-panel {
+    position: sticky;
+    top: var(--space-12);
+    z-index: var(--z-sticky);
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8);
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  /* --- v0.3 NEW : maker-portrait (P-05) : portrait + pull-quote block --- */
+  .maker-portrait {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: var(--space-12);
+    align-items: center;
+  }
+  .maker-portrait__photo {
+    aspect-ratio: 4 / 5;
+    background: var(--surface-warm);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-none); /* portraits stay sharp-edged */
+  }
+  .maker-portrait__quote {
+    font-family: var(--font-quote);
+    font-style: italic;
+    font-size: var(--text-body-l);
+    color: var(--ink-text);
+    max-width: 50ch;
+  }
+
+  /* --- v0.3 NEW : chapter-divider (Collection index page) --- */
+  .chapter-divider {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-8);
+    align-items: center;
+    padding: var(--space-24) 0;
+    border-top: 1px solid var(--ink-body);
+  }
+  .chapter-divider__roman {
+    font-family: var(--font-display);
+    font-size: var(--text-display-xl);
+    line-height: 1;
+    color: var(--ink-body);
+    letter-spacing: var(--tracking-display-xl);
+  }
+
+  /* --- v0.3 NEW : concierge-form (Layer 2/3 inquiry submission) --- */
+  .concierge-form {
+    display: grid;
+    gap: var(--space-6);
+    max-width: var(--w-narrow);
+    margin: 0 auto;
+  }
+  .concierge-form label {
+    font-family: var(--font-body);
+    font-size: var(--text-caption);
+    color: var(--ink-soft);
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+  }
+  .concierge-form input,
+  .concierge-form textarea,
+  .concierge-form select {
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface);
+    color: var(--ink-text);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+  }
+  .concierge-form input:focus,
+  .concierge-form textarea:focus,
+  .concierge-form select:focus {
+    outline: 2px solid var(--accent-jihong);
+    outline-offset: 2px;
+    z-index: var(--z-region-focus);
+  }
 }

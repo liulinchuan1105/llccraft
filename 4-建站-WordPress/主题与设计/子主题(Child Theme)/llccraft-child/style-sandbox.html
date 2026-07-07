@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LLCCRAFT · Style Sandbox · v0.4 Style Discovery 阶段</title>
+<meta name="description" content="Visual test surface for LLCCRAFT Sage-light tokens. B-review only. No business logic." />
+
+<!--
+  ============================================================================
+  v0.4 战略纠偏 banner (2026-07-06)
+  ============================================================================
+  本页面是 Style Discovery 阶段的视觉测试 harness。
+  v0.3 锁定(07-05)的具体视觉值已作废,tokens.css 占位符生效。
+  当前页面渲染将显示中性 fallback (transparent / 0 / inherit) -
+  这不是 bug,是 v0.4 状态。
+
+  待 Style Discovery 完成后:
+    CEO 提供参考 URL -> A 逆向拆解 + 重组 -> B 复审 ->
+    视觉宪法 v0.1 -> 替换 tokens.css 占位符 ->
+    本页面自动恢复视觉表现(SSOT 模式天然兼容)
+
+  跨风格强制保留(reduced-motion / .skiplink / z-index skiplink 80 /
+  region-focus 75 / w-prose 65ch)继续生效。
+  ============================================================================
+-->
+
+<!-- CDN fonts : same stack locked in DESIGN.md S2.1 -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,700;0,800;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@400;700;800;900&display=swap" rel="stylesheet" />
+
+<!-- ============================================================
+     SSOT : tokens.css verbatim, embedded for self-contained render
+     This block MUST stay byte-identical with src/styles/tokens.css
+     ============================================================ -->
+<style id="tokens">
+:root {
+  /* COLOR */
+  --ink-body:        oklch(0.14 0.012 28);
+  --ink-text:        oklch(0.18 0.010 28);
+  --ink-soft:        oklch(0.42 0.012 28);
+  --ink-mute:        oklch(0.62 0.008 28);
+  --surface:         oklch(0.97 0 0);
+  --surface-warm:    oklch(0.95 0.006 28);
+  --rule:            oklch(0.85 0.005 28);
+  --accent-jihong:   oklch(0.42 0.165 27);
+  --accent-ru:       oklch(0.78 0.045 195);
+  --accent-qing:     oklch(0.45 0.110 260);
+
+  /* TYPOGRAPHY */
+  --font-display:    "Cormorant Garamond", "EB Garamond", Georgia, serif;
+  --font-body:       "Inter", "Noto Sans SC", system-ui, -apple-system, sans-serif;
+  --font-quote:      "Cormorant Garamond", "Noto Serif SC", Georgia, serif;
+  --font-cn-display: "Noto Serif SC", "Source Han Serif SC", "Songti SC", serif;
+  --font-cn-body:    "Noto Sans SC", "Source Han Sans SC", "PingFang SC", sans-serif;
+  --font-mono:       "JetBrains Mono", ui-monospace, "Courier New", monospace;
+
+  --text-display-xl:    clamp(3rem, 4vw + 1rem, 5.5rem);
+  --text-display-cn-l:  clamp(3.5rem, 4.5vw + 1rem, 6rem);
+  --text-display-l:     clamp(2.25rem, 2.5vw + 1rem, 4rem);
+  --text-display-m:     clamp(1.75rem, 1.5vw + 1rem, 2.75rem);
+  --text-heading-l:     clamp(1.5rem, 1vw + 1rem, 2rem);
+  --text-heading-m:     1.25rem;
+  --text-body-l:        1.125rem;
+  --text-body:          1rem;
+  --text-body-s:        0.9375rem;
+  --text-caption:       0.8125rem;
+  --text-eyebrow:       0.75rem;
+
+  --leading-prose:   1.7;
+  --leading-ui:      1.5;
+  --leading-display: 1.05;
+
+  --tracking-display-xl:  -0.035em;
+  --tracking-display-l:   -0.025em;
+  --tracking-display-m:   -0.02em;
+  --tracking-heading-l:   -0.015em;
+  --tracking-heading-m:   -0.01em;
+  --tracking-body:         0em;
+  --tracking-caption:     0.02em;
+  --tracking-eyebrow:     0.18em;
+
+  /* SPACING (4px base) */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-6: 24px; --space-8: 32px; --space-12: 48px;
+  --space-16: 64px; --space-24: 96px; --space-32: 128px;
+
+  /* WIDTHS */
+  --w-prose: 65ch; --w-narrow: 720px; --w-default: 1080px;
+  --w-wide: 1320px;
+
+  /* RADIUS */
+  --radius-none: 0; --radius-sm: 2px; --radius-md: 6px;
+  --radius-lg: 12px; --radius-pill: 999px;
+
+  /* Z-INDEX */
+  --z-base: 0; --z-dropdown: 10; --z-sticky: 20; --z-fixed: 25;
+  --z-modal-backdrop: 30; --z-modal: 40; --z-toast: 50;
+  --z-tooltip: 60; --z-cursor: 70; --z-region-focus: 75; --z-skiplink: 80;
+
+  /* MOTION */
+  --dur-fast: 160ms; --dur-base: 240ms; --dur-slow: 400ms;
+  --dur-cinema: 800ms; --dur-reveal: 600ms;
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo:  cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Reduced motion override -- Impeccable + WCAG 2.3.3 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+</style>
+
+<!-- ============================================================
+     Component layer : the 6 locked classes + piece-card preview
+     ============================================================ -->
+<style>
+/* ---------- BASE ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--surface);
+  color: var(--ink-text);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-ui);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "ss01", "kern";
+}
+
+/* ---------- skip link ---------- */
+.skiplink {
+  position: fixed; top: -100px; left: var(--space-3);
+  z-index: var(--z-skiplink);
+  padding: var(--space-2) var(--space-6);
+  background: var(--ink-body); color: var(--surface);
+  font-family: var(--font-body); font-size: var(--text-caption);
+  letter-spacing: var(--tracking-eyebrow); text-transform: uppercase;
+  border-radius: var(--radius-sm);
+  transition: top var(--dur-base) var(--ease-out-expo);
+}
+.skiplink:focus { top: var(--space-3); }
+
+/* ---------- baseline-ui : focus ring ---------- */
+:focus-visible {
+  outline: 2px solid var(--accent-jihong);
+  outline-offset: 2px;
+  z-index: var(--z-region-focus);
+}
+
+/* ---------- section container ---------- */
+.ll-section {
+  max-width: var(--w-default);
+  margin: 0 auto;
+  padding: var(--space-24) var(--space-6);
+}
+.ll-section--narrow { max-width: var(--w-narrow); }
+.ll-section--wide   { max-width: var(--w-wide); }
+.ll-section--prose  { max-width: var(--w-prose); }
+.ll-section--bleed  { max-width: none; padding: 0; }
+
+/* ---------- typography utilities ---------- */
+.t-display-xl   { font: 500 var(--text-display-xl)   / var(--leading-display) var(--font-display); letter-spacing: var(--tracking-display-xl); color: var(--ink-body); text-wrap: balance; }
+.t-display-cn-l { font: 800 var(--text-display-cn-l) / 1.0 var(--font-cn-display); letter-spacing: var(--tracking-display-xl); color: var(--ink-body); text-wrap: balance; }
+.t-display-l    { font: 500 var(--text-display-l)   / 1.1 var(--font-display); letter-spacing: var(--tracking-display-l); color: var(--ink-body); text-wrap: balance; }
+.t-display-m    { font: 500 var(--text-display-m)   / 1.2 var(--font-display); letter-spacing: var(--tracking-display-m); color: var(--ink-body); text-wrap: balance; }
+.t-heading-l    { font: 500 var(--text-heading-l)   / var(--leading-ui) var(--font-display); letter-spacing: var(--tracking-heading-l); color: var(--ink-body); }
+.t-heading-m    { font: 500 var(--text-heading-m)   / var(--leading-ui) var(--font-display); letter-spacing: var(--tracking-heading-m); color: var(--ink-body); }
+.t-body-l       { font: 400 var(--text-body-l)      / var(--leading-prose) var(--font-body); letter-spacing: var(--tracking-body); color: var(--ink-text); }
+.t-body         { font: 400 var(--text-body)        / var(--leading-ui) var(--font-body); letter-spacing: var(--tracking-body); color: var(--ink-text); }
+.t-body-s       { font: 400 var(--text-body-s)      / var(--leading-ui) var(--font-body); letter-spacing: var(--tracking-body); color: var(--ink-soft); }
+.t-caption      { font: 400 var(--text-caption)     / var(--leading-ui) var(--font-body); letter-spacing: var(--tracking-caption); color: var(--ink-mute); }
+.t-eyebrow      { font: 500 var(--text-eyebrow)     / var(--leading-ui) var(--font-body); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--ink-mute); }
+.t-quote        { font: 400 italic calc(var(--text-body-l) * 1.125) / 1.55 var(--font-quote); letter-spacing: 0; color: var(--ink-text); max-width: 50ch; }
+.t-mono         { font: 400 var(--text-body-s)      / var(--leading-ui) var(--font-mono); color: var(--ink-soft); }
+
+/* ---------- baseline-ui : piece-card (renamed from product-card) ---------- */
+.piece-card {
+  background: var(--surface-warm);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);   /* 12px HARD ceiling */
+  padding: var(--space-8);
+  display: grid;
+  gap: var(--space-6);
+  max-width: 480px;
+  /* NO side-stripe, NO gradient text, NO ghost-shadow */
+}
+.piece-card__price { font-family: var(--font-body); font-size: var(--text-body-s); color: var(--ink-soft); letter-spacing: var(--tracking-body); }
+.piece-card__meta  { font-family: var(--font-body); font-size: var(--text-caption); color: var(--ink-mute); letter-spacing: var(--tracking-caption); }
+
+/* ---------- Drenched full-bleed covers ---------- */
+.drenched {
+  width: 100vw; margin-left: calc(50% - 50vw);
+  padding: var(--space-24) var(--space-8);
+  display: flex; flex-direction: column; gap: var(--space-4);
+}
+.drenched--ink    { background: var(--ink-body);     color: var(--surface); }
+.drenched--jihong { background: var(--accent-jihong); color: var(--surface); }
+.drenched--ru     { background: var(--accent-ru);     color: var(--ink-body); }
+.drenched--warm   { background: var(--surface-warm); color: var(--ink-body); }
+.drenched h2, .drenched p, .drenched .t-eyebrow { color: inherit; }
+
+/* ---------- buttons : 2 lock button variants ---------- */
+.btn-primary {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: var(--space-3) var(--space-8);
+  border: 1px solid var(--ink-body); border-radius: var(--radius-md);
+  background: var(--ink-body); color: var(--surface);
+  font-family: var(--font-body); font-size: var(--text-body-s);
+  letter-spacing: var(--tracking-eyebrow); text-transform: uppercase;
+  text-decoration: none;
+  transition: background var(--dur-base) var(--ease-out-expo),
+              border-color var(--dur-base) var(--ease-out-expo),
+              color var(--dur-base) var(--ease-out-expo);
+}
+.btn-primary:hover { background: var(--accent-jihong); border-color: var(--accent-jihong); }
+
+.btn-quiet {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-2) 0;
+  border: none; background: transparent; color: var(--ink-text);
+  font-family: var(--font-body); font-size: var(--text-body-s);
+  letter-spacing: var(--tracking-body); text-transform: none;
+  border-bottom: 1px solid var(--ink-body);
+  transition: color var(--dur-base) var(--ease-out-expo),
+              border-color var(--dur-base) var(--ease-out-expo);
+}
+.btn-quiet:hover { color: var(--accent-jihong); border-bottom-color: var(--accent-jihong); }
+
+/* ---------- 1px hairline ---------- */
+.hairline { height: 1px; background: var(--rule); border: none; margin: 0; }
+
+/* ---------- baseline-ui rhythm strip ---------- */
+.rhythm-strip {
+  display: grid;
+  grid-template-columns: 80px repeat(10, 1fr);
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  color: var(--ink-soft);
+}
+.rhythm-strip .swatch { height: 24px; background: var(--ink-body); border-radius: 2px; }
+
+/* ---------- reveal demo (Impeccable : default visible + scroll opacity) ---------- */
+.reveal {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity var(--dur-reveal) var(--ease-out-expo),
+              transform var(--dur-reveal) var(--ease-out-expo);
+}
+.reveal.is-armed { opacity: 0.001; transform: translateY(12px); }
+.reveal.is-revealed { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- A11Y skiplink : WCAG 2.4.1 -->
+<a href="#main" class="skiplink">Skip to main content</a>
+
+<main id="main">
+
+<!-- ====================================================================
+     SECTION 1 : HEADER  --  editorial restraint, no cream, no shadow
+     ==================================================================== -->
+<header class="ll-section ll-section--bleed" style="background: var(--surface); border-bottom: 1px solid var(--rule);">
+  <div class="ll-section" style="padding-top: var(--space-12); padding-bottom: var(--space-12);">
+    <p class="t-eyebrow" style="margin-bottom: var(--space-4);">LLCCRAFT · Style Sandbox</p>
+    <h1 class="t-display-l" style="margin-bottom: var(--space-6);">Design system visual test</h1>
+    <p class="t-body-l" style="max-width: 60ch;">
+      本页面是 B 审查专用视觉测试面,无业务逻辑。<br />
+      锁定来源:PRODUCT.md v1.0 · DESIGN.md v1.0 + v0.3 · Impeccable SKILL.src.md · WCAG 2.1 AA。
+    </p>
+    <hr class="hairline" style="margin: var(--space-12) 0;" />
+    <div style="display: flex; gap: var(--space-3); flex-wrap: wrap;">
+      <a class="btn-primary" href="#type">Typography</a>
+      <a class="btn-quiet"   href="#drenched">Drenched</a>
+      <a class="btn-quiet"   href="#rhythm">Baseline-ui rhythm</a>
+      <a class="btn-quiet"   href="#piece">Piece-card</a>
+      <a class="btn-quiet"   href="#prose">Editorial prose</a>
+      <a class="btn-quiet"   href="#reveal">Reveal + reduced-motion</a>
+    </div>
+  </div>
+</header>
+
+<!-- ====================================================================
+     SECTION 2 : TYPOGRAPHY HIERARCHY  --  11 tokens, fluid, locked
+     ==================================================================== -->
+<section id="type" class="ll-section">
+  <p class="t-eyebrow" style="margin-bottom: var(--space-4);">01 · Typography</p>
+  <h2 class="t-display-l" style="margin-bottom: var(--space-8);">Eleven tokens, fluid to the pixel</h2>
+
+  <div style="display: grid; gap: var(--space-8);">
+
+    <div style="border-top: 1px solid var(--rule); padding-top: var(--space-6);">
+      <p class="t-mono" style="margin-bottom: var(--space-3);">--text-display-cn-l / 中文 96px / weight 800</p>
+      <p class="t-display-cn-l" lang="zh-CN">天青·雨过汝窑</p>
+    </div>
+
+    <div style="border-top: 1px solid var(--rule); padding-top: var(--space-6);">
+      <p class="t-mono" style="margin-bottom: var(--space-3);">--text-display-xl / 5.5rem hero / 8px safety pad</p>
+      <p class="t-display-xl">Sky-blue Reveries</p>
+    </div>
+
+    <div style="border-top: 1px solid var(--rule); padding-top: var(--space-6);">
+      <p class="t-mono" style="margin-bottom: var(--space-3);">--text-display-l / clamp(2.25rem, 2.5vw + 1rem, 4rem)</p>
+      <p class="t-display-l">Chapter · Ⅰ</p>
+    </div>
+
+    <div style="border-top: 1px solid var(--rule); padding-top: var(--space-6);">
+      <p class="t-mono" style="margin-bottom: var(--space-3);">--text-display-m / sub-headline</p>
+      <p class="t-display-m">The atelier of contemporary Ru ware</p>
+    </div>
+
+    <div style="border-top: 1px solid var(--rule); padding-top: var(--space-6);">
+      <p class="t-mono" style="margin-bottom: var(--space-3);">--text-heading-l / piece title</p>
+      <p class="t-heading-l">天青釉梅瓶 · High-shouldered Mei vase</p>
+    </div>
+
+    <div style="border-top: 1px solid var(--rule); padding-top: var(--space-6);">
+      <p class="t-mono" style="margin-bottom: var(--space-3);">--text-heading-m / section subhead</p>
+      <p class="t-heading-m">Maker · National master craftsman</p>
+    </div>
+
+    <div style="border-top: 1px solid var(--rule); padding-top: var(--space-6);">
+      <p class="t-mono" style="margin-bottom: var(--space-3);">--text-body-l / editorial prose</p>
+      <p class="t-body-l">每一件器物的釉色配方由作坊主理人亲调,烧制温度以目测与探针双线控制,以保 Ru 釉「雨过天青」之古意。</p>
+    </div>
+
+    <div style="border-top: 1px solid var(--rule); padding-top: var(--space-6);">
+      <p class="t-mono" style="margin-bottom: var(--space-3);">--text-body / default</p>
+      <p class="t-body">12.5 cm diameter · 280g · kiln-fired 2026 Q2 · signed and sealed at the base.</p>
+    </div>
+
+    <div style="border-top: 1px solid var(--rule); padding-top: var(--space-6);">
+      <p class="t-mono" style="margin-bottom: var(--space-3);">--text-caption / meta line</p>
+      <p class="t-caption">Hand-thrown · Reduction fired · One of one</p>
+    </div>
+
+    <div style="border-top: 1px solid var(--rule); padding-top: var(--space-6);">
+      <p class="t-mono" style="margin-bottom: var(--space-3);">--text-eyebrow / kicker (sparingly)</p>
+      <p class="t-eyebrow">Acquisition · Private Inquiry</p>
+    </div>
+
+    <div style="border-top: 1px solid var(--rule); padding-top: var(--space-6);">
+      <p class="t-mono" style="margin-bottom: var(--space-3);">.t-quote / editorial pull-quote</p>
+      <blockquote class="t-quote">「青如天,面如玉,蝉翼纹,晨星稀 —— 这是 Ru 釉的四个尺度。」</blockquote>
+    </div>
+
+  </div>
+</section>
+
+<!-- ====================================================================
+     SECTION 3 : DRENCHED FULL-BLEED COVERS  --  the 4 lock colors
+     ==================================================================== -->
+<section id="drenched" style="margin-top: var(--space-24);">
+  <div class="ll-section" style="padding-bottom: var(--space-12);">
+    <p class="t-eyebrow" style="margin-bottom: var(--space-4);">02 · Drenched</p>
+    <h2 class="t-display-l" style="margin-bottom: var(--space-4);">Full-bleed covers · dual logic locked</h2>
+    <p class="t-body" style="max-width: 60ch; color: var(--ink-soft); margin-bottom: var(--space-12);">
+      每章封面由 P-03 创建时通过 <code class="t-mono">chapter_drenched_color</code> 字段显式锁定。
+      章号使用 Cormorant 罗马数字(减弱 AI 编号感);逻辑类型由策展人标注定夺。
+    </p>
+  </div>
+
+  <div class="drenched drenched--ink">
+    <p class="t-eyebrow" style="opacity: .65;">N mod 3 = 0  ·  Same-tone extension</p>
+    <p style="font-family: var(--font-display); font-size: var(--text-display-xl); line-height: 1.05; letter-spacing: var(--tracking-display-xl); color: var(--surface); margin: 0;">Ⅰ</p>
+    <p class="t-display-l" style="color: var(--surface); margin: 0;">青花·海东青</p>
+    <p class="t-body" style="color: var(--surface); opacity: .75; max-width: 50ch; margin: 0;">海东青(猎鹰)的肃杀与墨色同调——一笔冷峻到底。</p>
+  </div>
+
+  <div style="height: var(--space-8);"></div>
+
+  <div class="drenched drenched--jihong">
+    <p class="t-eyebrow" style="opacity: .75;">N mod 3 = 1  ·  Contrast strike</p>
+    <p style="font-family: var(--font-display); font-size: var(--text-display-xl); line-height: 1.05; letter-spacing: var(--tracking-display-xl); color: var(--surface); margin: 0;">Ⅱ</p>
+    <p class="t-display-l" style="color: var(--surface); margin: 0;">天青·雨过</p>
+    <p class="t-body" style="color: var(--surface); opacity: .85; max-width: 50ch; margin: 0;">雨过天青的反差意象——暖红冲击冷青。</p>
+  </div>
+
+  <div style="height: var(--space-8);"></div>
+
+  <div class="drenched drenched--ru">
+    <p class="t-eyebrow" style="opacity: .75;">N mod 3 = 2  ·  Same-tone extension</p>
+    <p style="font-family: var(--font-display); font-size: var(--text-display-xl); line-height: 1.05; letter-spacing: var(--tracking-display-xl); color: var(--ink-body); margin: 0;">Ⅲ</p>
+    <p class="t-display-l" style="color: var(--ink-body); margin: 0;">鸟杯·霜月</p>
+    <p class="t-body" style="color: var(--ink-body); opacity: .85; max-width: 50ch; margin: 0;">霜月冷调与天青冷色延续——同色系推进。</p>
+  </div>
+
+  <div style="height: var(--space-8);"></div>
+
+  <div class="drenched drenched--warm">
+    <p class="t-eyebrow" style="opacity: .75;">Optional · editorial reserve</p>
+    <p style="font-family: var(--font-display); font-size: var(--text-display-xl); line-height: 1.05; letter-spacing: var(--tracking-display-xl); color: var(--ink-body); margin: 0;">Ⅳ</p>
+    <p class="t-display-l" style="color: var(--ink-body); margin: 0;">玲珑·瓷</p>
+    <p class="t-body" style="color: var(--ink-soft); max-width: 50ch; margin: 0;">玲珑透光的轻盈与暖白延续——最克制的封面色。</p>
+  </div>
+</section>
+
+<!-- ====================================================================
+     SECTION 4 : BASELINE-UI RHYTHM  --  4px base, 10 steps
+     ==================================================================== -->
+<section id="rhythm" class="ll-section" style="margin-top: var(--space-24);">
+  <p class="t-eyebrow" style="margin-bottom: var(--space-4);">03 · Baseline-ui</p>
+  <h2 class="t-display-l" style="margin-bottom: var(--space-8);">Rhythm on a 4-px grid</h2>
+  <p class="t-body" style="color: var(--ink-soft); max-width: 60ch; margin-bottom: var(--space-12);">
+    排版间距的「呼吸节奏」由 baseline-ui 思路定义:4px 基线,10 步进。每个 token 都是变量,可被任意组件复用。
+  </p>
+
+  <div class="rhythm-strip" style="margin-bottom: var(--space-3);">
+    <span>1 · 4px</span>  <span class="swatch" style="width: 4px;"></span>  <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <div class="rhythm-strip" style="margin-bottom: var(--space-3);">
+    <span>2 · 8px</span>  <span class="swatch" style="width: 8px;"></span>  <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <div class="rhythm-strip" style="margin-bottom: var(--space-3);">
+    <span>3 · 12px</span> <span class="swatch" style="width: 12px;"></span> <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <div class="rhythm-strip" style="margin-bottom: var(--space-3);">
+    <span>4 · 16px</span> <span class="swatch" style="width: 16px;"></span> <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <div class="rhythm-strip" style="margin-bottom: var(--space-3);">
+    <span>6 · 24px</span> <span class="swatch" style="width: 24px;"></span> <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <div class="rhythm-strip" style="margin-bottom: var(--space-3);">
+    <span>8 · 32px</span> <span class="swatch" style="width: 32px;"></span> <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <div class="rhythm-strip" style="margin-bottom: var(--space-3);">
+    <span>12 · 48px</span><span class="swatch" style="width: 48px;"></span> <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <div class="rhythm-strip" style="margin-bottom: var(--space-3);">
+    <span>16 · 64px</span><span class="swatch" style="width: 64px;"></span> <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <div class="rhythm-strip" style="margin-bottom: var(--space-3);">
+    <span>24 · 96px</span><span class="swatch" style="width: 96px;"></span> <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <div class="rhythm-strip" style="margin-bottom: var(--space-12);">
+    <span>32 · 128px</span><span class="swatch" style="width: 96px;"></span> <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+
+  <p class="t-mono" style="margin-bottom: var(--space-3);">Container width tokens</p>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6);">
+    <div style="border: 1px dashed var(--rule); padding: var(--space-4);">
+      <p class="t-mono">--w-prose · 65ch</p>
+      <p class="t-caption" style="margin-top: var(--space-2);">editorial prose width (locked by Impeccable)</p>
+    </div>
+    <div style="border: 1px dashed var(--rule); padding: var(--space-4);">
+      <p class="t-mono">--w-narrow · 720px</p>
+      <p class="t-caption" style="margin-top: var(--space-2);">forms / provenance table</p>
+    </div>
+    <div style="border: 1px dashed var(--rule); padding: var(--space-4);">
+      <p class="t-mono">--w-default · 1080px</p>
+      <p class="t-caption" style="margin-top: var(--space-2);">default content</p>
+    </div>
+    <div style="border: 1px dashed var(--rule); padding: var(--space-4);">
+      <p class="t-mono">--w-wide · 1320px</p>
+      <p class="t-caption" style="margin-top: var(--space-2);">editorial wide</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================================
+     SECTION 5 : PIECE-CARD  --  12px ceiling, no side-stripe, no ghost
+     ==================================================================== -->
+<section id="piece" class="ll-section" style="margin-top: var(--space-24);">
+  <p class="t-eyebrow" style="margin-bottom: var(--space-4);">04 · Piece-card</p>
+  <h2 class="t-display-l" style="margin-bottom: var(--space-8);">Container, not product card</h2>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--space-8);">
+
+    <article class="piece-card reveal">
+      <p class="t-eyebrow">Lot 014 · Ru ware</p>
+      <h3 class="t-heading-l" lang="zh-CN">天青釉小盏</h3>
+      <p class="t-body-l" lang="zh-CN">汝州当代大师手作,口径 12.5 cm,高温还原焰烧制,釉面蝉翼纹清晰,底款「汝」字款。</p>
+      <p class="piece-card__price">USD 1,200 – 1,500 · Layer 1 · Direct</p>
+      <p class="piece-card__meta">Maker: Master Liu · Kiln: Baofeng · Q2 2026</p>
+      <a class="btn-primary" href="#">Add to enquiry</a>
+    </article>
+
+    <article class="piece-card reveal">
+      <p class="t-eyebrow">Lot 029 · Qinghua</p>
+      <h3 class="t-heading-l" lang="zh-CN">青花缠枝莲纹梅瓶</h3>
+      <p class="t-body-l" lang="zh-CN">景德镇非遗传承人作品,苏麻离青古法铁锈斑版,高 33 cm,釉下彩绘,底款「景德镇制」四字款。</p>
+      <p class="piece-card__price">USD 4,200 – 5,000 · Layer 2 · Private Inquiry</p>
+      <p class="piece-card__meta">Maker: Master Chen · Kiln: Imperial-revival · Q1 2026</p>
+      <a class="btn-primary" href="#">Request a viewing</a>
+    </article>
+
+    <article class="piece-card reveal">
+      <p class="t-eyebrow">Reserved 007 · Commission</p>
+      <h3 class="t-heading-l" lang="zh-CN">青釉胆瓶(私人委约)</h3>
+      <p class="t-body-l" lang="zh-CN">家族办公室藏品。釉色复刻汝窑「雨过天青」,高 42 cm,起草至入藏历时 9 个月,一对,附独立鉴定证书。</p>
+      <p class="piece-card__price">USD 38,000 · Layer 3 · Reserved (by inquiry)</p>
+      <p class="piece-card__meta">Maker: Master Liu + atelier · Provenance: paper on file</p>
+      <a class="btn-primary" href="#">Acquire privately</a>
+    </article>
+
+  </div>
+
+  <p class="t-caption" style="margin-top: var(--space-8);">
+    验项:圆角 12px(Impeccable 上限)· 1px solid var(--rule) 描边 · 无 ghost-shadow · 无侧边条 · 12px grid 间距 · Layer 1/2/3 价格语境对齐。
+  </p>
+</section>
+
+<!-- ====================================================================
+     SECTION 6 : EDITORIAL PROSE  --  65ch width, prose line-height
+     ==================================================================== -->
+<section id="prose" class="ll-section ll-section--narrow" style="margin-top: var(--space-24);">
+  <p class="t-eyebrow" style="margin-bottom: var(--space-4);">05 · Editorial prose</p>
+  <h2 class="t-display-l" style="margin-bottom: var(--space-8);">Prose as product</h2>
+
+  <p class="t-body-l" style="margin-bottom: var(--space-6);">
+    在 LLCCRAFT,长文是产品本身的一部分。读者在雨后的 Belgravia 书房阅读器物出处档案时,他要的不是「资讯卡」,而是一份编辑过的、克制节奏的、可在 30 分钟内读完且能引用的内容块。
+  </p>
+  <p class="t-body-l" style="margin-bottom: var(--space-6);">
+    <strong style="font-weight: 600; color: var(--ink-body);">正文行宽 65ch,line-height 1.7</strong>。该值由 Impeccable 宪法强制 —— 不允许超出此宽度的长文块出现,避免读者视线路径过长导致的回扫疲劳。
+  </p>
+  <p class="t-body-l" style="margin-bottom: var(--space-6);">
+    中英混排按 §9.2 七条细则执行:英文两侧各留 1/4 em 全角空格;英文无衬线优先回退;中英标点各守其空。
+  </p>
+
+  <blockquote class="t-quote" style="margin: var(--space-12) 0;">
+    「青釉之美,不在色,在器;不在器,在烧。火候一过,千年之后,犹有幽光从器面微微浮起 —— 这是 Ru 窑最神秘的部分,也是任何检测仪器无法量化、只能凭肉眼与匠人指尖经验代代相传的部分。」
+    <br /><span class="t-caption" style="display: block; margin-top: var(--space-4); color: var(--ink-mute);">—— Master Liu · 2026 春季访谈</span>
+  </blockquote>
+
+  <p class="t-body-l">
+    故本节是该体系的可读性证明,也是 P-06 Journal 长文与 P-07 Provenance Statement 的字处理基线。
+  </p>
+</section>
+
+<!-- ====================================================================
+     SECTION 7 : REVEAL + REDUCED-MOTION  --  Impeccable safety demo
+     ==================================================================== -->
+<section id="reveal" class="ll-section" style="margin-top: var(--space-24);">
+  <p class="t-eyebrow" style="margin-bottom: var(--space-4);">06 · Reveal</p>
+  <h2 class="t-display-l" style="margin-bottom: var(--space-8);">Default visible · scroll opacity</h2>
+  <p class="t-body" style="color: var(--ink-soft); max-width: 60ch; margin-bottom: var(--space-12);">
+    验证 Impeccable reveal-safety:默认内容必须可见,滚动进入仅做 opacity + 微 transform(8–16px Y)。
+    <strong style="color: var(--ink-body);">不依赖 class 触发显示</strong>(hidden tabs 内容永远不显示的坑)。
+    点击下方按钮触发单次重演,观察 motion-reduce 时的降级表现。
+  </p>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-8);">
+    <button class="btn-primary" type="button" onclick="document.querySelectorAll('.reveal-demo').forEach(el => el.classList.add('is-armed'));">Arm reveal</button>
+    <button class="btn-quiet" type="button" onclick="setTimeout(()=>document.querySelectorAll('.reveal-demo').forEach(el => el.classList.remove('is-armed')), 50);">Fire reveal</button>
+    <button class="btn-quiet" type="button" onclick="document.querySelectorAll('.reveal-demo').forEach(el => el.classList.remove('is-armed'));">Reset</button>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-4);">
+    <div class="piece-card reveal-demo" style="padding: var(--space-4);"><p class="t-eyebrow">Reveal 01</p><p class="t-caption">Default visible.</p></div>
+    <div class="piece-card reveal-demo" style="padding: var(--space-4);"><p class="t-eyebrow">Reveal 02</p><p class="t-caption">No class dependency.</p></div>
+    <div class="piece-card reveal-demo" style="padding: var(--space-4);"><p class="t-eyebrow">Reveal 03</p><p class="t-caption">Scroll opacity + 12px Y.</p></div>
+    <div class="piece-card reveal-demo" style="padding: var(--space-4);"><p class="t-eyebrow">Reveal 04</p><p class="t-caption">Reduced-motion respected.</p></div>
+  </div>
+
+  <p class="t-caption" style="margin-top: var(--space-8);">
+    操作:Arm → 内容 opacity 0 + translateY(12px) → Fire reveal → 600ms ease-out-expo 还原。
+    系统设置开启「减少动效」时,降级为瞬时切换,无 transition 干扰。
+  </p>
+</section>
+
+<!-- ====================================================================
+     FOOTER  --  sober end
+     ==================================================================== -->
+<footer class="ll-section" style="margin-top: var(--space-32); border-top: 1px solid var(--rule);">
+  <div style="display: grid; grid-template-columns: 1fr auto; gap: var(--space-8); align-items: end;">
+    <div>
+      <p class="t-eyebrow" style="margin-bottom: var(--space-2);">LLCCRAFT · Style Sandbox</p>
+      <p class="t-caption">v1.0 + v0.3 LOCKED · 2026-07-05 · B-review only</p>
+    </div>
+    <a class="btn-quiet" href="#main">Back to top</a>
+  </div>
+</footer>
+
+</main>
+
+<!-- Minimal reveal demo script : pure class toggle, no hidden-tab trap -->
+<script>
+  document.querySelectorAll('.reveal').forEach(el => {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          el.classList.remove('is-armed');
+          el.classList.add('is-revealed');
+          io.unobserve(el);
+        }
+      });
+    }, { rootMargin: '-10% 0px', threshold: 0.05 });
+    io.observe(el);
+  });
+</script>
+
+</body>
+</html>

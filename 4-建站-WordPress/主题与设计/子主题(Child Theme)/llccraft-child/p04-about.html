@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLCCRAFT · P-04 About · v1.0.0</title>
+<meta name="description" content="LLCCRAFT P-04 About Us page. v1.0.0. Asymmetrical art grid + sparse text + video/image priority. Inherits P-01 v0.4.1.6 (Phase 3.5 chassis).">
+
+<!--
+  ============================================================================
+  P-04 About · v1.0.0 · PHASE 4  (art-gallery layout)
+  ============================================================================
+  Inherits from P-01 v0.4.1.6 (LOCKED + Phase 3.5 patch):
+    - Helvetica Regular @font-face (5 formats, ACTIVE)
+    - Global Sticky Header (Phase 3.5 chassis)
+    - Impeccable 宪法 :  skiplink / focus-visible / reduced-motion
+    - WCAG 2.1 AA  :  contrast / keyboard / aria
+    - Lumina 14-line CSS  -  footer verbatim
+  New for P-04 (CEO 艺术排版新规):
+    [G]  Asymmetrical grid   -  12-col CSS grid,  错落 + overlap
+    [V]  Video priority      -  2 silent <video> placeholders (21:9 + 16:9)
+    [I]  Image variety       -  5 image placeholders,  4 distinct ARs
+                                (3:4 / 4:3 / 1:1 / 2:3)
+    [T]  Sparse text         -  max-w-md (28rem) only,  no paragraphs
+    [O]  Overlap             -  negative margins on alternating items
+    [W]  Whitespace          -  96-200px section padding
+  ============================================================================
+-->
+
+<!-- Tailwind Play CDN : self-contained skeleton render -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          'gallery':  'oklch(0.97 0.012 90)',
+          'ink':      'oklch(0.20 0.010 28)',
+          'ink-soft': 'oklch(0.55 0.008 28)',
+          'rule':     'oklch(0.88 0.005 28)',
+        },
+        fontFamily: {
+          serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+          sans:  ['"Helvetica Regular"', '"Inter"', 'system-ui', 'sans-serif'],
+        },
+        maxWidth: { 'wide': '1320px', 'gallery': '1600px', 'md': '28rem' },
+      }
+    }
+  }
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  /* ==========================================================================
+     P-04 About v1.0.0  -  Asymmetrical art-gallery layout
+     ========================================================================== */
+
+  /* ---------- F1 : Helvetica Regular @font-face (inherited, ACTIVE) ---------- */
+  @font-face {
+    font-family: "Helvetica Regular";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.eot");
+    src: url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.eot?#iefix")format("embedded-opentype"),
+         url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.woff2")format("woff2"),
+         url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.woff")format("woff"),
+         url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.ttf")format("truetype"),
+         url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.svg#Helvetica Regular")format("svg");
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: oklch(0.97 0.012 90);
+    color: oklch(0.20 0.010 28);
+    font-family: "Helvetica Regular", "Inter", system-ui, -apple-system, sans-serif;
+    font-size: 16px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- A11Y ---------- */
+  .skiplink {
+    position: fixed; top: -100px; left: 12px; z-index: 200;
+    padding: 8px 24px; background: #000; color: #fff;
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    border-radius: 2px; text-decoration: none; font-weight: 500;
+    transition: top 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .skiplink:focus { top: 12px; }
+  :focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ====================================================================
+     1.  Global Sticky Header  (v0.4.1.6 chassis - PHASE 3.5)
+     ==================================================================== */
+  .global-header {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition: background 320ms ease, backdrop-filter 320ms ease,
+                border-color 320ms ease;
+  }
+  .global-header.is-scrolled-down {
+    background: rgba(15, 15, 15, 0.5);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+  .global-header.is-scrolled-up {
+    background: transparent;
+    backdrop-filter: none;
+    border-bottom-color: transparent;
+  }
+  .global-header__inner {
+    max-width: 1320px; margin: 0 auto;
+    padding: 18px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 32px;
+  }
+  .global-header__brand {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 22px; font-weight: 500;
+    color: #fff; text-decoration: none;
+    letter-spacing: -0.005em; flex-shrink: 0;
+  }
+  .global-header__actions { display: flex; align-items: center; gap: 24px; }
+  .global-header__lang { position: relative; }
+  .global-header__lang-btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: transparent; border: none; padding: 6px 8px;
+    color: #fff; cursor: pointer;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 12px; letter-spacing: 0.05em;
+    border-radius: 4px; transition: background 200ms ease;
+  }
+  .global-header__lang-btn:hover { background: rgba(255, 255, 255, 0.08); }
+  .global-header__lang-caret { width: 10px; height: 10px; fill: currentColor; }
+  .global-header__lang-menu {
+    position: absolute; top: calc(100% + 8px); right: 0;
+    background: oklch(0.18 0.012 28 / 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px; padding: 4px 0;
+    min-width: 100px; list-style: none; margin: 0;
+    opacity: 0; visibility: hidden; transform: translateY(-4px);
+    transition: opacity 200ms ease, transform 200ms ease, visibility 200ms ease;
+    z-index: 110;
+  }
+  .global-header__lang-menu.is-open { opacity: 1; visibility: visible; transform: translateY(0); }
+  .global-header__lang-menu button {
+    display: block; width: 100%; padding: 8px 16px;
+    background: transparent; border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 12px; letter-spacing: 0.05em;
+    text-align: left; cursor: pointer;
+    transition: background 200ms ease, color 200ms ease;
+  }
+  .global-header__lang-menu button:hover,
+  .global-header__lang-menu button.is-active {
+    background: rgba(255, 255, 255, 0.08); color: #fff;
+  }
+  .global-header__social {
+    display: flex; align-items: center; gap: 12px;
+    list-style: none; padding: 0; margin: 0;
+  }
+  .global-header__social a {
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px;
+    color: #fff; opacity: 0.7;
+    text-decoration: none; transition: opacity 200ms ease;
+  }
+  .global-header__social a:hover { opacity: 1; }
+  .global-header__social svg { width: 16px; height: 16px; fill: currentColor; }
+  .global-header__icons { display: flex; align-items: center; gap: 4px; }
+  .global-header__icon-btn,
+  .global-header__icon-link {
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px;
+    background: transparent; border: none;
+    color: #fff; opacity: 0.85;
+    text-decoration: none; cursor: pointer; border-radius: 50%;
+    transition: opacity 200ms ease, background 200ms ease;
+  }
+  .global-header__icon-btn:hover,
+  .global-header__icon-link:hover { opacity: 1; background: rgba(255, 255, 255, 0.08); }
+  .global-header__icon-btn svg,
+  .global-header__icon-link svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+  .global-header__cart-badge {
+    position: absolute; top: 4px; right: 4px;
+    min-width: 16px; height: 16px; padding: 0 4px;
+    display: flex; align-items: center; justify-content: center;
+    background: oklch(0.42 0.165 27);
+    color: #fff;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 10px; font-weight: 500;
+    border-radius: 999px; line-height: 1;
+  }
+
+  /* ====================================================================
+     2.  [G] Asymmetrical art grid  (12-col CSS grid + overlap)
+     ==================================================================== */
+  .about-hero {
+    padding: 200px 24px 128px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  .about-hero__eyebrow {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase;
+    color: oklch(0.55 0.008 28);
+    margin: 0 0 32px;
+  }
+  .about-hero__title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(3.5rem, 10vw, 8rem);
+    font-weight: 500; line-height: 0.95;
+    margin: 0; color: oklch(0.20 0.010 28);
+    letter-spacing: -0.025em;
+    max-width: 14ch;
+  }
+  .about-hero__caption {
+    /* [T] Sparse text : max-w-md (28rem),  2-3 lines only */
+    max-width: 28rem;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 14px; line-height: 1.6;
+    color: oklch(0.55 0.008 28);
+    margin: 48px 0 0;
+  }
+
+  /* Asymmetric grid  (CEO 艺术排版新规) */
+  .gallery {
+    padding: 0 24px 160px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  .gallery__grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-auto-rows: auto;
+    gap: 24px;
+  }
+  .gallery__item { position: relative; min-width: 0; }
+  .gallery__media {
+    width: 100%; overflow: hidden;
+    background: oklch(0.93 0.005 28);
+  }
+  .gallery__media img,
+  .gallery__media video {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+
+  /* Aspect ratio tokens  (5 distinct ARs) */
+  .ar-21x9 { aspect-ratio: 21 / 9; }
+  .ar-16x9 { aspect-ratio: 16 / 9; }
+  .ar-3x4  { aspect-ratio: 3 / 4; }
+  .ar-4x3  { aspect-ratio: 4 / 3; }
+  .ar-1x1  { aspect-ratio: 1 / 1; }
+  .ar-2x3  { aspect-ratio: 2 / 3; }
+
+  /* Asymmetric placements + [O] overlap (negative margin-top) */
+  .gallery__item--1 { grid-column: 1 / 13;  grid-row: 1; }                  /* full-width 21:9 video */
+  .gallery__item--2 { grid-column: 1 / 6;   grid-row: 2; margin-top: 64px; }    /* 3:4 offset down */
+  .gallery__item--3 { grid-column: 7 / 13;  grid-row: 2; margin-top: -32px; }   /* 4:3 overlap up */
+  .gallery__item--4 { grid-column: 1 / 5;   grid-row: 3; margin-top: 48px; }    /* 1:1 small */
+  .gallery__item--5 { grid-column: 5 / 13;  grid-row: 3; margin-top: -64px; }   /* 16:9 video overlap up */
+  .gallery__item--6 { grid-column: 4 / 9;   grid-row: 4; margin-top: 96px; }    /* 2:3 tall portrait */
+  .gallery__item--7 { grid-column: 9 / 13;  grid-row: 4; margin-top: -48px; }   /* 1:1 right anchor */
+
+  /* Asymmetric text blocks  (3 sparse placements) */
+  .gallery__text {
+    max-width: 28rem;  /* [T] hard cap */
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 14px; line-height: 1.6;
+    color: oklch(0.55 0.008 28);
+  }
+  .gallery__text--eyebrow {
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: oklch(0.55 0.008 28);
+    margin: 0 0 16px;
+  }
+  .gallery__text h3 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(1.75rem, 2.5vw, 2.25rem);
+    font-weight: 500; line-height: 1.1;
+    margin: 0 0 16px;
+    color: oklch(0.20 0.010 28);
+    letter-spacing: -0.005em;
+  }
+  .gallery__text p {
+    margin: 0 0 12px;
+  }
+  .gallery__text--lg { max-width: 36rem; }
+  .gallery__text--right { margin-left: auto; text-align: left; }
+
+  /* text position variants for asymmetric spread */
+  .gallery__text--pos-1 { grid-column: 1 / 5;   grid-row: 5; margin-top: 80px; }
+  .gallery__text--pos-2 { grid-column: 6 / 10;  grid-row: 5; margin-top: -32px; }
+  .gallery__text--pos-3 { grid-column: 1 / 6;   grid-row: 6; margin-top: 64px; }
+
+  /* ====================================================================
+     3.  Lumina Liquid Glass footer  (verbatim, inherited)
+     ==================================================================== */
+  .liquid-glass {
+    background: rgba(255, 255, 255, 0.01);
+    background-blend-mode: luminosity;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: none;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  .liquid-glass::before {
+    content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1.4px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 20%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%, rgba(255,255,255,0.15) 80%, rgba(255,255,255,0.45) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
+  }
+  .footer__bg {
+    position: absolute; inset: 0; z-index: 0;
+    width: 100%; height: 100%; object-fit: cover;
+    opacity: 0.55;
+  }
+  .footer__glass {
+    position: absolute; inset: 0; z-index: 0;
+  }
+  .footer__content {
+    position: relative; z-index: 1;
+  }
+</style>
+</head>
+<body>
+
+<!-- A11Y skiplink -->
+<a href="#main" class="skiplink">Skip to main content</a>
+
+<!-- 1. Global Sticky Header  (PHASE 3.5 chassis, reused) -->
+<header class="global-header" data-state="top" id="global-header">
+  <div class="global-header__inner">
+    <a href="p01-home.html" class="global-header__brand">LLCCRAFT</a>
+
+    <div class="global-header__actions">
+      <div class="global-header__lang">
+        <button class="global-header__lang-btn" id="lang-btn" type="button"
+                aria-haspopup="true" aria-expanded="false" aria-controls="lang-menu">
+          <span data-current-lang>EN</span>
+          <svg class="global-header__lang-caret" viewBox="0 0 10 10" aria-hidden="true">
+            <path d="M2 4l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <ul class="global-header__lang-menu" id="lang-menu" role="menu" aria-label="Language">
+          <li role="none"><button role="menuitem" data-lang="en" class="is-active">EN</button></li>
+          <li role="none"><button role="menuitem" data-lang="zh">中文</button></li>
+          <li role="none"><button role="menuitem" data-lang="fr">FR</button></li>
+          <li role="none"><button role="menuitem" data-lang="ja">日本語</button></li>
+        </ul>
+      </div>
+
+      <ul class="global-header__social" aria-label="Social">
+        <li><a href="#" aria-label="Instagram">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <rect x="2" y="2" width="12" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="8" cy="8" r="2.6" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="11.6" cy="4.4" r="0.7" fill="currentColor"/>
+          </svg>
+        </a></li>
+        <li><a href="#" aria-label="WeChat">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <ellipse cx="6" cy="7" rx="5" ry="4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <ellipse cx="11" cy="10" rx="3.5" ry="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="4.7" cy="6" r="0.45" fill="currentColor"/>
+            <circle cx="7.3" cy="6" r="0.45" fill="currentColor"/>
+            <circle cx="10.4" cy="9.5" r="0.35" fill="currentColor"/>
+          </svg>
+        </a></li>
+        <li><a href="#" aria-label="Weibo">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <ellipse cx="8" cy="8.5" rx="6" ry="4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="6" cy="9" r="0.4" fill="currentColor"/>
+            <circle cx="9" cy="8" r="0.4" fill="currentColor"/>
+          </svg>
+        </a></li>
+      </ul>
+
+      <div class="global-header__icons">
+        <button class="global-header__icon-btn" id="search-btn" type="button" aria-label="Search">
+          <svg viewBox="0 0 18 18" aria-hidden="true">
+            <circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M12 12l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <a href="p05-auth.html" class="global-header__icon-link" aria-label="Account">
+          <svg viewBox="0 0 18 18" aria-hidden="true">
+            <circle cx="9" cy="6.5" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M3 16c0-3 3-5 6-5s6 2 6 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </a>
+        <button class="global-header__icon-btn global-header__cart" id="cart-btn" type="button" aria-label="Cart">
+          <svg viewBox="0 0 18 18" aria-hidden="true">
+            <path d="M3 5h2l1.5 8h7l1.5-6H6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="7.5" cy="15.5" r="1" fill="currentColor"/>
+            <circle cx="12.5" cy="15.5" r="1" fill="currentColor"/>
+          </svg>
+          
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ============================================================
+       2.  Hero  (sparse text + huge title)
+       ============================================================ -->
+  <section class="about-hero">
+    <p class="about-hero__eyebrow">The Atelier &middot; Est. 2026</p>
+    <h1 class="about-hero__title">Lorem Ipsum, slowly fired</h1>
+    <p class="about-hero__caption">Lorem ipsum dolor sit amet &mdash; a small atelier between two rivers, where contemporary masters continue the slow conversation between earth, glaze, and fire.</p>
+  </section>
+
+  <!-- ============================================================
+       3.  [G] Asymmetrical art grid  (video + image + sparse text)
+       Layout:  12-col CSS grid,  7 items,  4 image ARs + 2 video ARs + 3 text blocks
+       ============================================================ -->
+  <section class="gallery" aria-label="Asymmetrical art gallery">
+
+    <div class="gallery__grid">
+
+      <!-- Item 1 :  [V] Full-width 21:9 video  (top) -->
+      <div class="gallery__item gallery__item--1">
+        <div class="gallery__media ar-21x9">
+          <video autoplay muted loop playsinline poster="https://picsum.photos/1920/800?random=50">
+            <source src="{{hero.video.url}}" data-placeholder="about-video-kiln.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+
+      <!-- Item 2 :  [I] 3:4 portrait image  (offset down 64px) -->
+      <div class="gallery__item gallery__item--2">
+        <div class="gallery__media ar-3x4">
+          <img src="https://picsum.photos/600/800?random=51" alt="Lorem ipsum atelier portrait" loading="lazy">
+        </div>
+      </div>
+
+      <!-- Item 3 :  [I] 4:3 landscape image  (overlap up -32px) -->
+      <div class="gallery__item gallery__item--3">
+        <div class="gallery__media ar-4x3">
+          <img src="https://picsum.photos/800/600?random=52" alt="Lorem ipsum kiln landscape" loading="lazy">
+        </div>
+      </div>
+
+      <!-- Item 4 :  [I] 1:1 square image  (offset down 48px) -->
+      <div class="gallery__item gallery__item--4">
+        <div class="gallery__media ar-1x1">
+          <img src="https://picsum.photos/600/600?random=53" alt="Lorem ipsum detail" loading="lazy">
+        </div>
+      </div>
+
+      <!-- Item 5 :  [V] 16:9 half-width video  (overlap up -64px) -->
+      <div class="gallery__item gallery__item--5">
+        <div class="gallery__media ar-16x9">
+          <video autoplay muted loop playsinline poster="https://picsum.photos/1600/900?random=54">
+            <source src="{{hero.video.url}}" data-placeholder="about-video-hands.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+
+      <!-- Item 6 :  [I] 2:3 tall portrait image  (offset down 96px) -->
+      <div class="gallery__item gallery__item--6">
+        <div class="gallery__media ar-2x3">
+          <img src="https://picsum.photos/600/900?random=55" alt="Lorem ipsum maker" loading="lazy">
+        </div>
+      </div>
+
+      <!-- Item 7 :  [I] 1:1 right-anchored image  (overlap up -48px) -->
+      <div class="gallery__item gallery__item--7">
+        <div class="gallery__media ar-1x1">
+          <img src="https://picsum.photos/600/600?random=56" alt="Lorem ipsum glaze" loading="lazy">
+        </div>
+      </div>
+
+      <!-- [T] Sparse text  -  position 1 (offset down 80px) -->
+      <div class="gallery__text gallery__text--pos-1">
+        <p class="gallery__text--eyebrow">Philosophy &middot; I</p>
+        <h3>The slow conversation</h3>
+        <p>Earth, glaze, fire. Three voices. We only listen.</p>
+      </div>
+
+      <!-- [T] Sparse text  -  position 2 (overlap up -32px) -->
+      <div class="gallery__text gallery__text--pos-2">
+        <p class="gallery__text--eyebrow">Method &middot; II</p>
+        <h3>Hands, not machines</h3>
+        <p>Each piece is shaped, glazed, and signed by one maker. No batch.</p>
+      </div>
+
+      <!-- [T] Sparse text  -  position 3 (offset down 64px) -->
+      <div class="gallery__text gallery__text--pos-3">
+        <p class="gallery__text--eyebrow">Promise &middot; III</p>
+        <h3>Provenance on file</h3>
+        <p>Every acquisition is delivered with a maker's note, a kiln record, and a 14-day authenticity review.</p>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- ====================================================================
+     Lumina Liquid Glass footer  (P-01 v0.4.1.6 100% 复用 verbatim)
+     ==================================================================== -->
+<footer class="relative overflow-hidden" style="isolation: isolate; border-radius: 0; margin-top: 96px; min-height: 480px;">
+
+  <video class="footer__bg" autoplay loop muted playsinline>
+    <source src="{{hero.video.url}}" data-placeholder="hero-video.mp4" type="video/mp4">
+  </video>
+
+  <div class="liquid-glass footer__glass"></div>
+
+  <div class="footer__content" style="padding: 96px 24px 32px;">
+    <div class="max-w-wide mx-auto" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 48px;">
+      <div>
+        <h3 class="font-serif text-2xl mb-4" style="font-family: 'Cormorant Garamond', serif; font-weight: 500;">LLCCRAFT</h3>
+        <p class="text-sm" style="color: oklch(0.20 0.010 28); opacity: 0.7;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor.</p>
+      </div>
+      <div>
+        <h4 class="text-xs uppercase mb-4" style="letter-spacing: 0.18em; color: oklch(0.55 0.008 28);">Collections</h4>
+        <ul style="list-style: none; padding: 0; margin: 0;">
+          <li style="margin-bottom: 8px;"><a href="p01-home.html" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Contemporary Ru ware</a></li>
+          <li style="margin-bottom: 8px;"><a href="p01-home.html" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Jingdezhen blue-and-white</a></li>
+          <li style="margin-bottom: 8px;"><a href="p02-pdp.html" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Reserved &amp; Commission</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs uppercase mb-4" style="letter-spacing: 0.18em; color: oklch(0.55 0.008 28);">Atelier</h4>
+        <ul style="list-style: none; padding: 0; margin: 0;">
+          <li style="margin-bottom: 8px;"><a href="#" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Master Liu</a></li>
+          <li style="margin-bottom: 8px;"><a href="#" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Master Chen</a></li>
+          <li style="margin-bottom: 8px;"><a href="#" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Provenance</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs uppercase mb-4" style="letter-spacing: 0.18em; color: oklch(0.55 0.008 28);">Acquisition</h4>
+        <ul style="list-style: none; padding: 0; margin: 0;">
+          <li style="margin-bottom: 8px;"><a href="p02-pdp.html" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Direct purchase</a></li>
+          <li style="margin-bottom: 8px;"><a href="p02-pdp.html" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Private inquiry</a></li>
+          <li style="margin-bottom: 8px;"><a href="p05-auth.html" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Sign in</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="max-w-wide mx-auto" style="margin-top: 64px; padding-top: 24px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; border-top: 1px solid oklch(0.20 0.010 28 / 0.1);">
+      <p class="text-xs" style="color: oklch(0.55 0.008 28);">&copy; 2026 LLCCRAFT &middot; Lorem ipsum</p>
+      <p class="text-xs" style="color: oklch(0.55 0.008 28);">Privacy &middot; Terms &middot; Contact</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* ==========================================================================
+     P-04 About JS  v1.0.0
+     ==========================================================================
+     Modules (Phase 3.5 chassis carry-over):
+       1. Global Sticky Header  (scroll direction + lang dropdown)
+     ========================================================================== */
+
+  (function () {
+    /* 1. Global Sticky Header  (Phase 3.5 chassis) */
+    const header = document.getElementById('global-header');
+    if (header) {
+      let lastY = 0;
+      const onScroll = () => {
+        const y = window.scrollY;
+        const dir = y > lastY ? 'down' : 'up';
+        lastY = y;
+        if (y < 80) {
+          header.dataset.state = 'top';
+          header.classList.remove('is-scrolled-down', 'is-scrolled-up');
+        } else {
+          header.dataset.state = dir;
+          header.classList.toggle('is-scrolled-down', dir === 'down');
+          header.classList.toggle('is-scrolled-up', dir === 'up');
+        }
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }
+
+    /* 1b. Lang dropdown */
+    const langBtn  = document.getElementById('lang-btn');
+    const langMenu = document.getElementById('lang-menu');
+    if (langBtn && langMenu) {
+      const toggle = (open) => {
+        const isOpen = open ?? !langMenu.classList.contains('is-open');
+        langMenu.classList.toggle('is-open', isOpen);
+        langBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      };
+      langBtn.addEventListener('click', (e) => { e.stopPropagation(); toggle(); });
+      langMenu.addEventListener('click', (e) => {
+        const item = e.target.closest('[data-lang]');
+        if (item) {
+          langMenu.querySelectorAll('button').forEach((b) => b.classList.remove('is-active'));
+          item.classList.add('is-active');
+          const cur = langBtn.querySelector('[data-current-lang]');
+          if (cur) cur.textContent = item.textContent;
+          toggle(false);
+        }
+      });
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.global-header__lang')) toggle(false);
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && langMenu.classList.contains('is-open')) {
+          toggle(false);
+          langBtn.focus();
+        }
+      });
+    }
+  })();
+</script>
+
+</body>
+</html>

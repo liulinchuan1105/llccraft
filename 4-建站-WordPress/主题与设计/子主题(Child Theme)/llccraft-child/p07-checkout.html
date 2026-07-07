@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLCCRAFT · P-07 Checkout · v0.7.0 SaaS</title>
+<meta name="description" content="LLCCRAFT P-07 Checkout SaaS. v0.7.0. Real-time payment: Stripe Elements CC + PayPal button + Pay Now. Concierge logic removed.">
+
+<!--
+  ============================================================================
+  P-07 Checkout v0.7.0  -  SaaS direct-payment refactor
+  ============================================================================
+  v0.5.1.1 → v0.7.0 changes (战区二攻坚):
+    [SaaS]    - Removed : "礼宾 4h 响应" / "Private Inquiry" / "提交接洽单" concierge flow
+    [SaaS]    - Added   : Stripe Elements (live CC input mount)
+    [SaaS]    - Added   : PayPal SDK button (real render)
+    [SaaS]    - Added   : "Pay Now" button (real submit)
+    [TKN]     - Injected : standardized tokens (letter-spacing + glass opacity)
+    [RED]     - Preserved: Lumina 14-line footer verbatim
+  Inherits from P-01 v0.4.1.5 (Path A) + Phase 3.5 chassis:
+    - Helvetica Regular @font-face (5 formats CDN, ACTIVE)
+    - Global Sticky Header (no cart badge)
+    - Impeccable 憲法 / WCAG 2.1 AA / reduced-motion / skiplink
+    - Lumina 14-line CSS  (verbatim,  reusable)
+  ============================================================================
+-->
+
+<!-- Tailwind Play CDN : self-contained skeleton render -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          'gallery':  'oklch(0.97 0.012 90)',
+          'ink':      'oklch(0.20 0.010 28)',
+          'ink-soft': 'oklch(0.55 0.008 28)',
+          'rule':     'oklch(0.88 0.005 28)',
+        },
+        fontFamily: {
+          serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+          sans:  ['"Helvetica Regular"', '"Inter"', 'system-ui', 'sans-serif'],
+        },
+        maxWidth: { 'wide': '1320px' },
+      }
+    }
+  }
+</script>
+
+<!-- ======  Stripe.js SDK  (real)  ====== -->
+<script src="https://js.stripe.com/v3/"></script>
+<!-- ======  PayPal SDK  (real, sandbox client-id  TODO production replace)  ====== -->
+<script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  /* ============================================================
+     [TKN]  TOKEN INJECTION  (战区二全局底层样式统一)
+     全站 9 文件共享此组 token  ·  letter-spacing + glass opacity
+     ============================================================ */
+  :root {
+    /* Letter-spacing scale (standardized) */
+    --ls-eyebrow: 0.18em;       /* tags / kickers / micro-headers */
+    --ls-tag:     0.18em;       /* tag pills / status */
+    --ls-body-sm: 0.05em;       /* small body / meta */
+    --ls-body:    0.02em;       /* body / display */
+    --ls-display: -0.02em;      /* large display */
+
+    /* Lumina glass opacity scale (standardized) */
+    --glass-bg-faint:    rgba(255, 255, 255, 0.01);   /* footer */
+    --glass-bg-prominent:rgba(255, 255, 255, 0.06);   /* cards / panels */
+    --glass-blend:       luminosity;
+    --glass-blur-sm:     blur(4px);
+    --glass-blur-md:     blur(20px);
+    --glass-blur-lg:     blur(40px);
+    --glass-border-w:    1.4px;
+    --glass-border-c:    rgba(255, 255, 255, 0.50);
+    --glass-inset-hi:    inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  }
+
+  /* ---------- F1 : Helvetica Regular @font-face (inherited, ACTIVE) ---------- */
+  @font-face {
+    font-family: "Helvetica Regular";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.eot");
+    src: url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.eot?#iefix")format("embedded-opentype"),
+         url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.woff2")format("woff2"),
+         url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.woff")format("woff"),
+         url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.ttf")format("truetype"),
+         url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.svg#Helvetica Regular")format("svg");
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: #fff;
+    color: var(--color-ink, #2b2622);
+    font-family: "Helvetica Regular", "Inter", system-ui, -apple-system, sans-serif;
+    font-size: 16px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- A11Y ---------- */
+  .skiplink {
+    position: fixed; top: -100px; left: 12px; z-index: 200;
+    padding: 8px 24px; background: #000; color: #fff;
+    font-size: 12px; letter-spacing: var(--ls-eyebrow); text-transform: uppercase;
+    border-radius: 2px; text-decoration: none; font-weight: 500;
+    transition: top 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .skiplink:focus { top: 12px; }
+  :focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ============================================================
+     1.  Global Sticky Header (Phase 3.5 chassis · no cart badge)
+     ============================================================ */
+  .global-header {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition: background 320ms ease, backdrop-filter 320ms ease,
+                border-color 320ms ease;
+  }
+  .global-header.is-scrolled-down {
+    background: rgba(15, 15, 15, 0.5);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+  .global-header.is-scrolled-up {
+    background: transparent;
+    backdrop-filter: none;
+    border-bottom-color: transparent;
+  }
+  .global-header__inner {
+    max-width: 1320px; margin: 0 auto;
+    padding: 18px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 32px;
+  }
+  .global-header__brand {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 22px; font-weight: 500;
+    color: #fff; text-decoration: none;
+    letter-spacing: var(--ls-display); flex-shrink: 0;
+  }
+  .global-header__actions { display: flex; align-items: center; gap: 24px; }
+  .global-header__lang { position: relative; }
+  .global-header__lang-btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: transparent; border: none; padding: 6px 8px;
+    color: #fff; cursor: pointer;
+    font-family: "Helvetica Regular", "Inter", system-ui, sans-serif;
+    font-size: 12px; letter-spacing: var(--ls-body-sm);
+    border-radius: 4px; transition: background 200ms ease;
+  }
+  .global-header__lang-btn:hover { background: rgba(255, 255, 255, 0.08); }
+  .global-header__lang-caret { width: 10px; height: 10px; fill: currentColor; }
+  .global-header__lang-menu {
+    position: absolute; top: calc(100% + 8px); right: 0;
+    background: oklch(0.18 0.012 28 / 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px; padding: 4px 0;
+    min-width: 100px; list-style: none; margin: 0;
+    opacity: 0; visibility: hidden; transform: translateY(-4px);
+    transition: opacity 200ms ease, transform 200ms ease, visibility 200ms ease;
+    z-index: 110;
+  }
+  .global-header__lang-menu.is-open { opacity: 1; visibility: visible; transform: translateY(0); }
+  .global-header__lang-menu button {
+    display: block; width: 100%; padding: 8px 16px;
+    background: transparent; border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: "Helvetica Regular", "Inter", system-ui, sans-serif;
+    font-size: 12px; letter-spacing: var(--ls-body-sm);
+    text-align: left; cursor: pointer;
+    transition: background 200ms ease, color 200ms ease;
+  }
+  .global-header__lang-menu button:hover,
+  .global-header__lang-menu button.is-active {
+    background: rgba(255, 255, 255, 0.08); color: #fff;
+  }
+  .global-header__social {
+    display: flex; align-items: center; gap: 12px;
+    list-style: none; padding: 0; margin: 0;
+  }
+  .global-header__social a {
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px;
+    color: #fff; opacity: 0.7;
+    text-decoration: none; transition: opacity 200ms ease;
+  }
+  .global-header__social a:hover { opacity: 1; }
+  .global-header__social svg { width: 16px; height: 16px; fill: currentColor; }
+  .global-header__icons { display: flex; align-items: center; gap: 4px; }
+  .global-header__icon-btn,
+  .global-header__icon-link {
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px;
+    background: transparent; border: none;
+    color: #fff; opacity: 0.85;
+    text-decoration: none; cursor: pointer; border-radius: 50%;
+    transition: opacity 200ms ease, background 200ms ease;
+  }
+  .global-header__icon-btn:hover,
+  .global-header__icon-link:hover { opacity: 1; background: rgba(255, 255, 255, 0.08); }
+  .global-header__icon-btn svg,
+  .global-header__icon-link svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+
+  /* ============================================================
+     2.  Checkout layout  (60/40)
+     ============================================================ */
+  .checkout {
+    display: grid;
+    grid-template-columns: 60% 40%;
+    min-height: 100vh;
+    padding-top: 96px;
+  }
+  @media (max-width: 900px) {
+    .checkout { grid-template-columns: 1fr; }
+  }
+
+  .checkout__form {
+    background: #fff;
+    padding: 64px 64px 96px;
+    max-width: 720px;
+  }
+  @media (max-width: 768px) {
+    .checkout__form { padding: 40px 24px 64px; }
+  }
+
+  .checkout__eyebrow {
+    font-size: 12px; letter-spacing: var(--ls-eyebrow); text-transform: uppercase;
+    color: var(--color-ink-soft, #6b625b);
+    margin: 0 0 12px;
+  }
+  .checkout__title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(2rem, 3vw, 2.5rem);
+    font-weight: 500; line-height: 1.1;
+    margin: 0 0 40px; color: var(--color-ink, #2b2622);
+    letter-spacing: var(--ls-display);
+  }
+  .checkout__subtitle {
+    font-size: 14px; color: var(--color-ink-soft, #6b625b);
+    margin: 0 0 48px; letter-spacing: var(--ls-body);
+  }
+
+  /* ----- Form sections ----- */
+  .form-section { margin-bottom: 36px; }
+  .form-section__title {
+    font-size: 12px; letter-spacing: var(--ls-eyebrow); text-transform: uppercase;
+    color: var(--color-ink-soft, #6b625b);
+    font-weight: 500;
+    margin: 0 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--color-rule, #e1ddd7);
+  }
+  .form-field { margin-bottom: 16px; }
+  .form-field__label {
+    display: block;
+    font-size: 12px; letter-spacing: var(--ls-body-sm);
+    color: var(--color-ink, #2b2622);
+    margin-bottom: 6px; font-weight: 500;
+  }
+  .form-field__input {
+    display: block; width: 100%;
+    padding: 12px 14px;
+    background: #fff;
+    color: var(--color-ink, #2b2622);
+    border: 1px solid var(--color-rule, #d8d3cd);
+    border-radius: 6px;
+    font-family: "Helvetica Regular", "Inter", system-ui, sans-serif;
+    font-size: 14px; letter-spacing: var(--ls-body);
+    transition: border-color 200ms ease;
+  }
+  .form-field__input:focus {
+    outline: none;
+    border-color: oklch(0.42 0.165 27);
+    box-shadow: 0 0 0 3px oklch(0.42 0.165 27 / 0.12);
+  }
+  .form-field__input::placeholder { color: var(--color-ink-soft, #6b625b); }
+  .form-field--stripe {
+    padding: 16px;
+    background: #fafaf8;
+    border: 1px solid var(--color-rule, #d8d3cd);
+    border-radius: 8px;
+  }
+  .form-field--stripe .form-field__label { margin-bottom: 12px; }
+  #stripe-card-element { min-height: 40px; }
+
+  /* ----- PayPal container ----- */
+  .paypal-section {
+    margin-top: 16px;
+  }
+  .paypal-section__or {
+    text-align: center;
+    font-size: 11px; letter-spacing: var(--ls-eyebrow); text-transform: uppercase;
+    color: var(--color-ink-soft, #6b625b);
+    margin: 24px 0 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .paypal-section__or::before,
+  .paypal-section__or::after {
+    content: ''; flex: 1; height: 1px;
+    background: var(--color-rule, #d8d3cd);
+  }
+  #paypal-button-container { min-height: 45px; }
+
+  /* ----- [SaaS] Pay Now button (real submit) ----- */
+  .pay-now {
+    margin-top: 32px;
+    display: block; width: 100%;
+    padding: 18px 32px;
+    background: oklch(0.20 0.010 28);
+    color: #fff;
+    border: none; border-radius: 8px;
+    font-family: "Helvetica Regular", "Inter", system-ui, sans-serif;
+    font-size: 14px; font-weight: 600;
+    letter-spacing: var(--ls-eyebrow); text-transform: uppercase;
+    cursor: pointer;
+    transition: background 240ms ease, transform 100ms ease;
+  }
+  .pay-now:hover { background: oklch(0.42 0.165 27); }
+  .pay-now:active { transform: scale(0.99); }
+  .pay-now:disabled { background: var(--color-rule, #d8d3cd); cursor: not-allowed; }
+
+  .trust-line {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 12px; color: var(--color-ink-soft, #6b625b);
+    letter-spacing: var(--ls-body-sm);
+  }
+
+  /* ============================================================
+     3.  Order Summary  (right column,  Lumina glass)
+     ============================================================ */
+  .checkout__summary {
+    position: relative;
+    background: #0a0a0a;
+    padding: 64px 48px 96px;
+    color: #fff;
+    overflow: hidden;
+  }
+  .checkout__summary::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url('https://picsum.photos/1200/1800?random=90');
+    background-size: cover; background-position: center;
+    opacity: 0.15;
+    pointer-events: none;
+  }
+  .checkout__summary-inner { position: relative; z-index: 1; }
+
+  .order-summary {
+    background: var(--glass-bg-prominent);
+    background-blend-mode: var(--glass-blend);
+    backdrop-filter: var(--glass-blur-md) saturate(140%);
+    -webkit-backdrop-filter: var(--glass-blur-md) saturate(140%);
+    border: none; border-radius: 12px;
+    box-shadow: var(--glass-inset-hi),
+                0 16px 48px rgba(0, 0, 0, 0.35);
+    padding: 32px 28px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .order-summary::before {
+    content: ''; position: absolute; inset: 0;
+    border-radius: inherit; padding: var(--glass-border-w);
+    background: linear-gradient(180deg,
+      rgba(255,255,255,0.50) 0%,
+      rgba(255,255,255,0.18) 20%,
+      rgba(255,255,255,0) 40%,
+      rgba(255,255,255,0) 60%,
+      rgba(255,255,255,0.18) 80%,
+      rgba(255,255,255,0.50) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    pointer-events: none;
+  }
+  .order-summary__inner { position: relative; z-index: 1; }
+
+  .order-summary__eyebrow {
+    font-size: 11px; letter-spacing: var(--ls-eyebrow); text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0 0 8px;
+  }
+  .order-summary__title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 24px; font-weight: 500;
+    margin: 0 0 24px; color: #fff;
+    letter-spacing: var(--ls-display);
+  }
+  .order-summary__divider {
+    height: 1px; background: rgba(255, 255, 255, 0.15);
+    border: none; margin: 20px 0;
+  }
+  .order-summary__item {
+    display: grid; grid-template-columns: 56px 1fr auto;
+    gap: 12px; align-items: start;
+    margin-bottom: 16px;
+  }
+  .order-summary__item:last-of-type { margin-bottom: 0; }
+  .order-summary__item-img {
+    width: 56px; height: 56px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px; overflow: hidden;
+  }
+  .order-summary__item-img img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  .order-summary__item-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 15px; font-weight: 500;
+    margin: 0 0 4px; color: #fff;
+    letter-spacing: var(--ls-display);
+    line-height: 1.3;
+  }
+  .order-summary__item-meta {
+    font-size: 11px; color: rgba(255, 255, 255, 0.6);
+    margin: 0; letter-spacing: var(--ls-body-sm);
+  }
+  .order-summary__item-price {
+    font-size: 14px; font-weight: 500;
+    color: #fff; margin: 0; letter-spacing: var(--ls-body);
+  }
+  .order-summary__row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin: 12px 0;
+  }
+  .order-summary__row--total {
+    margin-top: 16px; padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+  }
+  .order-summary__row-label {
+    font-size: 12px; letter-spacing: var(--ls-eyebrow); text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+  }
+  .order-summary__row-value {
+    font-size: 14px; color: #fff; letter-spacing: var(--ls-body);
+  }
+  .order-summary__row--total .order-summary__row-value {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 28px; font-weight: 500;
+  }
+
+  /* ============================================================
+     4.  Lumina Footer  (14-line CSS verbatim,  inherited)
+     ============================================================ */
+  .checkout-footer {
+    padding: 32px 24px;
+    text-align: center;
+    background: oklch(0.97 0.012 90);
+    border-top: 1px solid oklch(0.88 0.005 28);
+  }
+  .checkout-footer p {
+    font-family: "Helvetica Regular", "Inter", system-ui, sans-serif;
+    font-size: 11px; letter-spacing: var(--ls-body-sm);
+    color: var(--color-ink-soft, #6b625b);
+    margin: 0;
+  }
+</style>
+</head>
+<body>
+
+<a href="#main" class="skiplink">Skip to main content</a>
+
+<!-- Global Sticky Header (no cart badge per v0.4.1.5 chassis) -->
+<header class="global-header" data-state="top" id="global-header">
+  <div class="global-header__inner">
+    <a href="p01-home.html" class="global-header__brand">LLCCRAFT</a>
+    <div class="global-header__actions">
+      <div class="global-header__lang">
+        <button class="global-header__lang-btn" id="lang-btn" type="button"
+                aria-haspopup="true" aria-expanded="false" aria-controls="lang-menu">
+          <span data-current-lang>EN</span>
+          <svg class="global-header__lang-caret" viewBox="0 0 10 10" aria-hidden="true">
+            <path d="M2 4l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <ul class="global-header__lang-menu" id="lang-menu" role="menu" aria-label="Language">
+          <li role="none"><button role="menuitem" data-lang="en" class="is-active">EN</button></li>
+          <li role="none"><button role="menuitem" data-lang="zh">中文</button></li>
+          <li role="none"><button role="menuitem" data-lang="fr">FR</button></li>
+          <li role="none"><button role="menuitem" data-lang="ja">日本語</button></li>
+        </ul>
+      </div>
+      <ul class="global-header__social" aria-label="Social">
+        <li><a href="#" aria-label="Instagram">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <rect x="2" y="2" width="12" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="8" cy="8" r="2.6" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="11.6" cy="4.4" r="0.7" fill="currentColor"/>
+          </svg>
+        </a></li>
+        <li><a href="#" aria-label="WeChat">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <ellipse cx="6" cy="7" rx="5" ry="4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <ellipse cx="11" cy="10" rx="3.5" ry="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="4.7" cy="6" r="0.45" fill="currentColor"/>
+            <circle cx="7.3" cy="6" r="0.45" fill="currentColor"/>
+            <circle cx="10.4" cy="9.5" r="0.35" fill="currentColor"/>
+          </svg>
+        </a></li>
+        <li><a href="#" aria-label="Weibo">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <ellipse cx="8" cy="8.5" rx="6" ry="4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="6" cy="9" r="0.4" fill="currentColor"/>
+            <circle cx="9" cy="8" r="0.4" fill="currentColor"/>
+          </svg>
+        </a></li>
+      </ul>
+      <div class="global-header__icons">
+        <button class="global-header__icon-btn" id="search-btn" type="button" aria-label="Search">
+          <svg viewBox="0 0 18 18" aria-hidden="true">
+            <circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M12 12l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <a href="p05-auth.html" class="global-header__icon-link" aria-label="Account">
+          <svg viewBox="0 0 18 18" aria-hidden="true">
+            <circle cx="9" cy="6.5" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M3 16c0-3 3-5 6-5s6 2 6 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </a>
+        <button class="global-header__icon-btn" id="cart-btn" type="button" aria-label="Cart">
+          <svg viewBox="0 0 18 18" aria-hidden="true">
+            <path d="M3 5h2l1.5 8h7l1.5-6H6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <circle cx="7.5" cy="15.5" r="1" fill="currentColor"/>
+            <circle cx="12.5" cy="15.5" r="1" fill="currentColor"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="checkout" aria-label="Checkout">
+
+    <!-- ============================================================
+         LEFT 60% — SaaS direct-payment form
+         [SaaS] removed: 礼宾 4h 响应 / 提交接洽单 / Private Inquiry
+         [SaaS] added:   Stripe Elements + PayPal SDK + Pay Now
+         ============================================================ -->
+    <div class="checkout__form">
+
+      <p class="checkout__eyebrow">Secure checkout</p>
+      <h1 class="checkout__title">Complete your acquisition</h1>
+      <p class="checkout__subtitle">Pay securely with credit card or PayPal. Real-time processing.</p>
+
+      <form id="checkout-form" novalidate>
+
+        <!-- Contact (email) -->
+        <div class="form-section">
+          <h2 class="form-section__title">Contact</h2>
+          <div class="form-field">
+            <label class="form-field__label" for="email">Email</label>
+            <input class="form-field__input" type="email" id="email" name="email"
+                   placeholder="you@example.com" autocomplete="email" required>
+          </div>
+        </div>
+
+        <!-- Cardholder name -->
+        <div class="form-section">
+          <h2 class="form-section__title">Billing details</h2>
+          <div class="form-field">
+            <label class="form-field__label" for="cc-name">Cardholder name</label>
+            <input class="form-field__input" type="text" id="cc-name" name="cc_name"
+                   placeholder="Lorem Ipsum" autocomplete="cc-name" required>
+          </div>
+
+          <!-- [SaaS] Stripe Elements CC input (real mount point) -->
+          <div class="form-field form-field--stripe">
+            <label class="form-field__label" for="stripe-card-element">Card information</label>
+            <div id="stripe-card-element"><!-- Stripe Elements mounts here --></div>
+            <p style="font-size: 11px; color: var(--color-ink-soft); margin: 8px 0 0; letter-spacing: var(--ls-body-sm);">
+              Secured by Stripe · 256-bit TLS · PCI-DSS compliant
+            </p>
+          </div>
+        </div>
+
+        <!-- [SaaS] PayPal (real SDK render) -->
+        <div class="paypal-section">
+          <div class="paypal-section__or">or</div>
+          <div id="paypal-button-container"><!-- PayPal SDK renders button here --></div>
+        </div>
+
+        <!-- [SaaS] Pay Now button (real form submit) -->
+        <button class="pay-now" type="submit" id="pay-now-btn">
+          Pay now · USD 1,200
+        </button>
+        <p class="trust-line">
+          By placing this order you agree to LLCCRAFT's Terms of Service and Privacy Policy.
+        </p>
+
+      </form>
+
+    </div>
+
+    <!-- ============================================================
+         RIGHT 40% — Order Summary (Lumina glass)
+         ============================================================ -->
+    <aside class="checkout__summary" aria-label="Order summary">
+      <div class="checkout__summary-inner">
+
+        <div class="order-summary">
+          <div class="order-summary__inner">
+
+            <p class="order-summary__eyebrow">Order Summary</p>
+            <h2 class="order-summary__title">Your acquisition</h2>
+
+            <article class="order-summary__item">
+              <div class="order-summary__item-img">
+                <img src="https://picsum.photos/200/200?random=20" alt="">
+              </div>
+              <div>
+                <p class="order-summary__item-title">Sky-blue Mei vase</p>
+                <p class="order-summary__item-meta">Size M · Moon-white glaze</p>
+              </div>
+              <p class="order-summary__item-price">$1,200</p>
+            </article>
+
+            <article class="order-summary__item">
+              <div class="order-summary__item-img">
+                <img src="https://picsum.photos/200/200?random=66" alt="">
+              </div>
+              <div>
+                <p class="order-summary__item-title">Hand-thrown celadon cup</p>
+                <p class="order-summary__item-meta">Longquan celadon · Qty 2</p>
+              </div>
+              <p class="order-summary__item-price">$840</p>
+            </article>
+
+            <hr class="order-summary__divider" />
+
+            <div class="order-summary__row">
+              <span class="order-summary__row-label">Subtotal</span>
+              <span class="order-summary__row-value">$2,040</span>
+            </div>
+            <div class="order-summary__row">
+              <span class="order-summary__row-label">Shipping</span>
+              <span class="order-summary__row-value">Calculated next</span>
+            </div>
+            <div class="order-summary__row">
+              <span class="order-summary__row-label">Duties &amp; taxes</span>
+              <span class="order-summary__row-value">Calculated next</span>
+            </div>
+
+            <div class="order-summary__row order-summary__row--total">
+              <span class="order-summary__row-label">Total</span>
+              <span class="order-summary__row-value">$2,040</span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+  </section>
+
+</main>
+
+<footer class="checkout-footer">
+  <p>&copy; 2026 LLCCRAFT &middot; <a href="p01-home.html" style="color: oklch(0.20 0.010 28); text-decoration: none; border-bottom: 1px solid oklch(0.20 0.010 28);">Return to home</a></p>
+</footer>
+
+<!-- ============================================================
+     [SaaS]  STRIPE + PAYPAL REAL INTEGRATION
+     - Stripe Elements mounts CC input into #stripe-card-element
+     - PayPal SDK renders Smart Buttons into #paypal-button-container
+     - Pay Now submits form to backend (POST /api/orders)
+     ============================================================ -->
+<script>
+(function () {
+  /* ---------- 1. Global Sticky Header (Phase 3.5 chassis) ---------- */
+  const header = document.getElementById('global-header');
+  if (header) {
+    let lastY = 0;
+    const onScroll = () => {
+      const y = window.scrollY;
+      const dir = y > lastY ? 'down' : 'up';
+      lastY = y;
+      if (y < 80) {
+        header.dataset.state = 'top';
+        header.classList.remove('is-scrolled-down', 'is-scrolled-up');
+      } else {
+        header.dataset.state = dir;
+        header.classList.toggle('is-scrolled-down', dir === 'down');
+        header.classList.toggle('is-scrolled-up', dir === 'up');
+      }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
+  /* ---------- 2. Lang dropdown ---------- */
+  const langBtn  = document.getElementById('lang-btn');
+  const langMenu = document.getElementById('lang-menu');
+  if (langBtn && langMenu) {
+    const toggle = (open) => {
+      const isOpen = open ?? !langMenu.classList.contains('is-open');
+      langMenu.classList.toggle('is-open', isOpen);
+      langBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    };
+    langBtn.addEventListener('click', (e) => { e.stopPropagation(); toggle(); });
+    langMenu.addEventListener('click', (e) => {
+      const item = e.target.closest('[data-lang]');
+      if (item) {
+        langMenu.querySelectorAll('button').forEach((b) => b.classList.remove('is-active'));
+        item.classList.add('is-active');
+        const cur = langBtn.querySelector('[data-current-lang]');
+        if (cur) cur.textContent = item.textContent;
+        toggle(false);
+      }
+    });
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.global-header__lang')) toggle(false);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && langMenu.classList.contains('is-open')) {
+        toggle(false);
+        langBtn.focus();
+      }
+    });
+  }
+
+  /* ---------- 3. Cart icon click (placeholder) ---------- */
+  const cartBtn = document.getElementById('cart-btn');
+  if (cartBtn) {
+    cartBtn.addEventListener('click', () => {
+      console.log('Cart click — drawer trigger (P-02 integration point)');
+    });
+  }
+
+  /* ---------- 4. [SaaS] STRIPE ELEMENTS (real) ----------
+     Replace 'pk_test_XXX' with your live publishable key in production. */
+  if (typeof Stripe !== 'undefined') {
+    const stripe = Stripe('pk_test_REPLACE_WITH_YOUR_PUBLISHABLE_KEY');
+    const elements = stripe.elements();
+    const card = elements.create('card', {
+      style: {
+        base: {
+          fontFamily: '"Helvetica Regular", "Inter", system-ui, sans-serif',
+          fontSize: '15px',
+          color: '#2b2622',
+          '::placeholder': { color: '#6b625b' },
+        },
+        invalid: { color: '#a8323f' },
+      },
+    });
+    const cardMount = document.getElementById('stripe-card-element');
+    if (cardMount) card.mount('#stripe-card-element');
+    window.__stripeCard = card;
+    window.__stripe = stripe;
+  } else {
+    console.warn('[Stripe.js] not loaded — check network.');
+  }
+
+  /* ---------- 5. [SaaS] PAYPAL SDK (real) ----------
+     Replace 'sb' sandbox client-id with your live client-id in production. */
+  if (typeof paypal !== 'undefined') {
+    paypal.Buttons({
+      style: { layout: 'horizontal', color: 'black', shape: 'pill', label: 'paypal' },
+      createOrder: function (data, actions) {
+        return actions.order.create({
+          purchase_units: [{
+            amount: { value: '2040.00', currency_code: 'USD' },
+            description: 'LLCCRAFT acquisition',
+          }],
+        });
+      },
+      onApprove: function (data, actions) {
+        return actions.order.capture().then(function (details) {
+          alert('PayPal payment captured · order ' + details.id);
+        });
+      },
+      onError: function (err) { console.error('[PayPal]', err); },
+    }).render('#paypal-button-container');
+  } else {
+    console.warn('[PayPal SDK] not loaded — check network.');
+  }
+
+  /* ---------- 6. [SaaS] Pay Now submit (Stripe path) ----------
+     POST /api/orders with paymentMethodId from Stripe.createPaymentMethod */
+  const form = document.getElementById('checkout-form');
+  const payNowBtn = document.getElementById('pay-now-btn');
+  if (form && payNowBtn) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      payNowBtn.disabled = true;
+      payNowBtn.textContent = 'Processing…';
+
+      if (!window.__stripe || !window.__stripeCard) {
+        alert('Stripe.js not initialized — check console.');
+        payNowBtn.disabled = false;
+        payNowBtn.textContent = 'Pay now · USD 2,040';
+        return;
+      }
+
+      try {
+        const { paymentMethod, error } = await window.__stripe.createPaymentMethod({
+          type: 'card',
+          card: window.__stripeCard,
+          billing_details: {
+            name: form['cc_name'].value,
+            email: form['email'].value,
+          },
+        });
+        if (error) {
+          alert('Stripe error: ' + error.message);
+          payNowBtn.disabled = false;
+          payNowBtn.textContent = 'Pay now · USD 2,040';
+          return;
+        }
+
+        // skeleton : POST /api/orders with paymentMethodId
+        const res = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paymentMethodId: paymentMethod.id, email: form['email'].value }),
+        });
+        if (res.ok) {
+          payNowBtn.textContent = 'Paid · order confirmed';
+        } else {
+          throw new Error('Order API failed');
+        }
+      } catch (err) {
+        console.error('[Pay Now]', err);
+        payNowBtn.disabled = false;
+        payNowBtn.textContent = 'Pay now · USD 2,040';
+      }
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  P-03 Journal · v0.4.2 · STATIC LOCKED · 2026-07-07
+  ============================================================================
+  Status       : LOCKED (静态,任何修改需 CEO 拍板 + 走 LOCKED 解除流程)
+  Size         : 34644 bytes
+  MD5          : 2434edc249a207b8989842c90b302021
+  mtime        : 2026-07-07 01:15
+  Audit        : .impeccable/snapshots/p03-journal-b-audit.md (APPROVED)
+  Inherited    : P-01 v0.4.1.5 LOCKED + Impeccable + WCAG + 商业 + v19
+                 + 全动态架构 + MD5 SOP + Editorial 排版哲学
+  挂账修正     : (1) line 743 "Direct purchase" → "Direct acquisition"
+                 (2) PLACEHOLDER 显式注释补强 ≥ 10 处
+                 (3) nav-sticky 滚动 backdrop-filter 是否入玻璃白名单
+  Next version : v0.4.3 / v0.5.0 (新建,禁止直接覆盖 v0.4.2)
+  ============================================================================
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLCCRAFT · P-03 Journal · v0.6.0</title>
+<meta name="description" content="LLCCRAFT P-03 Journal page skeleton. v0.6.0. No sidebar. Full-bleed grid + single-column detail. Inherits P-01 v0.4.1.5 + P-02 v0.5.0.">
+
+<!--
+  ============================================================================
+  P-03 Journal · v0.6.0 · STATIC SKELETON · 2026-07-07
+  ============================================================================
+  Inherits from P-01 v0.4.1.5 (LOCKED) + P-02 v0.5.0 (DRAFT):
+    - Helvetica Regular @font-face (5 formats CDN, ACTIVE)
+    - Impeccable A11Y / WCAG 2.1 AA / reduced-motion / skiplink
+    - Lumina 14-line CSS (footer 100% 复用 verbatim)
+    - 商业护城河 (NO countdown / red strikethrough / sale badge)
+  New for P-03:
+    [N]  No sidebar  -  zero 2/3 + 1/3 column,  严禁
+    [L]  List page  -  full-bleed 1+2 asymmetric magazine grid
+    [D]  Detail page  -  single-column 65ch,  line-height 1.8
+    [F]  Filter  -  sticky horizontal bar at top (NOT sidebar)
+    [C]  Covers  -  21:9 / 16:9 cinematic
+  ============================================================================
+-->
+
+<!-- Tailwind Play CDN : self-contained skeleton render -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          'gallery':  'oklch(0.97 0.012 90)',
+          'ink':      'oklch(0.20 0.010 28)',
+          'ink-soft': 'oklch(0.55 0.008 28)',
+          'rule':     'oklch(0.88 0.005 28)',
+        },
+        fontFamily: {
+          serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+          sans:  ['"Helvetica Regular"', '"Inter"', 'system-ui', 'sans-serif'],
+        },
+        maxWidth: { 'wide': '1320px', 'prose': '65ch' },
+      }
+    }
+  }
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  /* ==========================================================================
+     P-03 Journal v0.6.0
+     ==========================================================================
+     Constitution carry-overs (P-01 + P-02):
+       - Helvetica Regular @font-face  (5 formats, ACTIVE)
+       - Impeccable 宪法 :  skiplink / focus-visible / reduced-motion
+       - WCAG 2.1 AA  :  contrast / keyboard / aria
+       - Lumina 14-line CSS  (footer, verbatim)
+       - 商业护城河  :  NO countdown / NO red strikethrough / NO sale
+     P-03 new:
+       - NO sidebar  -  list full-bleed 1+2 grid
+       - Detail page  -  65ch single column,  line-height 1.8
+       - Sticky horizontal filter bar at top
+       - 21:9 / 16:9 cinematic covers
+     ========================================================================== */
+
+  /* ---------- F1 : Helvetica Regular @font-face (inherited, ACTIVE) ---------- */
+  @font-face {
+    font-family: "Helvetica Regular";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.eot");
+    src: url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.eot?#iefix")format("embedded-opentype"),
+         url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.woff2")format("woff2"),
+         url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.woff")format("woff"),
+         url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.ttf")format("truetype"),
+         url("https://db.onlinewebfonts.com/t/a64ff11d2c24584c767f6257e880dc65.svg#Helvetica Regular")format("svg");
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: oklch(0.97 0.012 90);
+    color: oklch(0.20 0.010 28);
+    font-family: "Helvetica Regular", "Inter", system-ui, -apple-system, sans-serif;
+    font-size: 16px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- A11Y ---------- */
+  .skiplink {
+    position: fixed; top: -100px; left: 12px; z-index: 200;
+    padding: 8px 24px; background: #000; color: #fff;
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    border-radius: 2px; text-decoration: none; font-weight: 500;
+    transition: top 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .skiplink:focus { top: 12px; }
+  :focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ====================================================================
+     1.  Global Sticky Header  (v0.4.3 chassis - PHASE 3.5)
+     ==================================================================== */
+  .global-header {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition: background 320ms ease, backdrop-filter 320ms ease,
+                border-color 320ms ease;
+  }
+  .global-header.is-scrolled-down {
+    background: rgba(15, 15, 15, 0.5);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+  .global-header.is-scrolled-up {
+    background: transparent;
+    backdrop-filter: none;
+    border-bottom-color: transparent;
+  }
+  .global-header__inner {
+    max-width: 1320px; margin: 0 auto;
+    padding: 18px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 32px;
+  }
+  .global-header__brand {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 22px; font-weight: 500;
+    color: #fff; text-decoration: none;
+    letter-spacing: -0.005em; flex-shrink: 0;
+  }
+  .global-header__actions { display: flex; align-items: center; gap: 24px; }
+  .global-header__lang { position: relative; }
+  .global-header__lang-btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: transparent; border: none; padding: 6px 8px;
+    color: #fff; cursor: pointer;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 12px; letter-spacing: 0.05em;
+    border-radius: 4px; transition: background 200ms ease;
+  }
+  .global-header__lang-btn:hover { background: rgba(255, 255, 255, 0.08); }
+  .global-header__lang-caret { width: 10px; height: 10px; fill: currentColor; }
+  .global-header__lang-menu {
+    position: absolute; top: calc(100% + 8px); right: 0;
+    background: oklch(0.18 0.012 28 / 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px; padding: 4px 0;
+    min-width: 100px; list-style: none; margin: 0;
+    opacity: 0; visibility: hidden; transform: translateY(-4px);
+    transition: opacity 200ms ease, transform 200ms ease, visibility 200ms ease;
+    z-index: 110;
+  }
+  .global-header__lang-menu.is-open { opacity: 1; visibility: visible; transform: translateY(0); }
+  .global-header__lang-menu button {
+    display: block; width: 100%; padding: 8px 16px;
+    background: transparent; border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 12px; letter-spacing: 0.05em;
+    text-align: left; cursor: pointer;
+    transition: background 200ms ease, color 200ms ease;
+  }
+  .global-header__lang-menu button:hover,
+  .global-header__lang-menu button.is-active {
+    background: rgba(255, 255, 255, 0.08); color: #fff;
+  }
+  .global-header__social {
+    display: flex; align-items: center; gap: 12px;
+    list-style: none; padding: 0; margin: 0;
+  }
+  .global-header__social a {
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px;
+    color: #fff; opacity: 0.7;
+    text-decoration: none; transition: opacity 200ms ease;
+  }
+  .global-header__social a:hover { opacity: 1; }
+  .global-header__social svg { width: 16px; height: 16px; fill: currentColor; }
+  .global-header__icons { display: flex; align-items: center; gap: 4px; }
+  .global-header__icon-btn,
+  .global-header__icon-link {
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px;
+    background: transparent; border: none;
+    color: #fff; opacity: 0.85;
+    text-decoration: none; cursor: pointer; border-radius: 50%;
+    transition: opacity 200ms ease, background 200ms ease;
+  }
+  .global-header__icon-btn:hover,
+  .global-header__icon-link:hover { opacity: 1; background: rgba(255, 255, 255, 0.08); }
+  .global-header__icon-btn svg,
+  .global-header__icon-link svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+  .global-header__cart-badge {
+    position: absolute; top: 4px; right: 4px;
+    min-width: 16px; height: 16px; padding: 0 4px;
+    display: flex; align-items: center; justify-content: center;
+    background: oklch(0.42 0.165 27);
+    color: #fff;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 10px; font-weight: 500;
+    border-radius: 999px; line-height: 1;
+  }
+
+  /* ====================================================================
+     2.  Page header  (NO sidebar - full width)
+     ==================================================================== */
+  .journal-header {
+    padding: 160px 24px 64px;  /* top = nav clearance (80) + air */
+    max-width: 1320px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .journal-header__eyebrow {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: oklch(0.55 0.008 28); margin: 0 0 16px;
+  }
+  .journal-header__title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    font-weight: 500; line-height: 1.05;
+    margin: 0 0 20px; color: oklch(0.20 0.010 28);
+    letter-spacing: -0.015em;
+  }
+  .journal-header__subtitle {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: clamp(1.125rem, 1.5vw, 1.375rem);
+    color: oklch(0.55 0.008 28);
+    margin: 0 auto; max-width: 56ch;
+  }
+
+  /* ====================================================================
+     3.  [F] Sticky horizontal filter bar  (NOT sidebar)
+     ==================================================================== */
+  .filter-bar {
+    position: sticky;
+    top: 80px;  /* below nav (nav is 80px tall) */
+    z-index: 90;
+    background: oklch(0.97 0.012 90 / 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid oklch(0.88 0.005 28);
+    border-bottom: 1px solid oklch(0.88 0.005 28);
+    margin-top: 24px;
+  }
+  .filter-bar__inner {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    display: flex; align-items: center; gap: 16px;
+    overflow-x: auto;  /* horizontal scroll on narrow */
+  }
+  .filter-bar__label {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: oklch(0.55 0.008 28); font-weight: 500;
+    flex-shrink: 0;
+  }
+  .filter-bar__options {
+    display: flex; gap: 8px;
+    flex-shrink: 0;
+  }
+  .filter-pill {
+    display: inline-flex; align-items: center;
+    padding: 8px 16px;
+    background: transparent;
+    color: oklch(0.20 0.010 28);
+    border: 1px solid oklch(0.20 0.010 28 / 0.3);
+    border-radius: 999px;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer;
+    transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
+    white-space: nowrap;
+  }
+  .filter-pill:hover {
+    background: oklch(0.20 0.010 28 / 0.06);
+    border-color: oklch(0.20 0.010 28 / 0.7);
+  }
+  .filter-pill.is-active {
+    background: oklch(0.20 0.010 28);
+    color: oklch(0.97 0.012 90);
+    border-color: oklch(0.20 0.010 28);
+  }
+
+  /* ====================================================================
+     4.  [L] Article list  -  full-bleed 1+2 asymmetric grid
+     ==================================================================== */
+  .journal-list {
+    max-width: 1320px;
+    margin: 64px auto 96px;
+    padding: 0 24px;
+    display: flex; flex-direction: column; gap: 80px;
+  }
+
+  /* Featured :  21:9 cover,  full width,  title beside or below */
+  .article-featured {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) 1fr;
+    gap: 48px;
+    align-items: center;
+  }
+  @media (max-width: 900px) {
+    .article-featured {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+  .article-featured__cover {
+    width: 100%;
+    aspect-ratio: 21 / 9;
+    overflow: hidden;
+    background: oklch(0.93 0.005 28);
+  }
+  .article-featured__cover img {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .article-featured:hover img { transform: scale(1.02); }
+  .article-featured__body {
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .article-featured__category {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: oklch(0.55 0.008 28); font-weight: 500;
+  }
+  .article-featured__title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(1.75rem, 2.5vw, 2.5rem);
+    font-weight: 500; line-height: 1.15;
+    margin: 0; color: oklch(0.20 0.010 28);
+    letter-spacing: -0.01em;
+  }
+  .article-featured__excerpt {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: 17px; line-height: 1.6;
+    color: oklch(0.42 0.012 28);
+    margin: 0;
+  }
+  .article-featured__meta {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 12px; letter-spacing: 0.02em;
+    color: oklch(0.55 0.008 28);
+    display: flex; gap: 12px; align-items: center;
+  }
+  .article-featured__meta-dot {
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: oklch(0.55 0.008 28);
+  }
+  .article-featured__read {
+    display: inline-block;
+    margin-top: 8px;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: oklch(0.20 0.010 28);
+    text-decoration: none;
+    border-bottom: 1px solid oklch(0.20 0.010 28);
+    padding-bottom: 2px;
+    align-self: flex-start;
+  }
+  .article-featured__read:hover {
+    color: oklch(0.42 0.165 27);
+    border-color: oklch(0.42 0.165 27);
+  }
+
+  /* 1+2 grid for remaining articles */
+  .article-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 48px 32px;
+  }
+  @media (max-width: 700px) {
+    .article-grid { grid-template-columns: 1fr; }
+  }
+  .article-card {
+    display: flex; flex-direction: column; gap: 16px;
+    cursor: pointer;
+  }
+  .article-card__cover {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: oklch(0.93 0.005 28);
+  }
+  .article-card__cover img {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .article-card:hover .article-card__cover img { transform: scale(1.02); }
+  .article-card__category {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: oklch(0.55 0.008 28); font-weight: 500;
+  }
+  .article-card__title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 22px; font-weight: 500; line-height: 1.25;
+    margin: 0; color: oklch(0.20 0.010 28);
+    letter-spacing: -0.005em;
+  }
+  .article-card__meta {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 12px; color: oklch(0.55 0.008 28);
+    margin-top: auto;
+  }
+
+  /* ====================================================================
+     5.  [D] Article detail  -  single-column centered,  65ch,  1.8 leading
+     ==================================================================== */
+  .article-detail {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 0 24px 96px;
+  }
+  .article-detail__cover {
+    width: 100%;
+    aspect-ratio: 21 / 9;
+    overflow: hidden;
+    background: oklch(0.93 0.005 28);
+    margin-bottom: 64px;
+  }
+  .article-detail__cover img {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+  }
+  .article-detail__inner {
+    max-width: 65ch;  /* 黄金阅读宽度,Impeccable 强制 */
+    margin: 0 auto;
+  }
+  .article-detail__meta-row {
+    display: flex; gap: 12px; align-items: center;
+    margin-bottom: 24px;
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: oklch(0.55 0.008 28);
+  }
+  .article-detail__category { color: oklch(0.42 0.165 27); font-weight: 500; }
+  .article-detail__meta-dot { width: 3px; height: 3px; border-radius: 50%; background: oklch(0.55 0.008 28); }
+  .article-detail__title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 500; line-height: 1.15;
+    margin: 0 0 16px; color: oklch(0.20 0.010 28);
+    letter-spacing: -0.015em;
+  }
+  .article-detail__subtitle {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: clamp(1.125rem, 1.5vw, 1.375rem);
+    color: oklch(0.55 0.008 28);
+    margin: 0 0 48px; line-height: 1.5;
+  }
+  .article-detail__byline {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 13px; color: oklch(0.55 0.008 28);
+    margin: 0 0 48px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid oklch(0.88 0.005 28);
+    display: flex; gap: 8px; align-items: center;
+  }
+  .article-detail__author { color: oklch(0.20 0.010 28); font-weight: 500; }
+
+  /* Body text -  黄金阅读体验 */
+  .article-body {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 18px; line-height: 1.8;
+    color: oklch(0.20 0.010 28);
+  }
+  .article-body p { margin: 0 0 1.5em; }
+  .article-body p:last-child { margin-bottom: 0; }
+  .article-body p:first-of-type::first-letter {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 4em; line-height: 0.85;
+    float: left; margin: 0.05em 0.1em 0 0;
+    color: oklch(0.20 0.010 28);
+    font-weight: 500;
+  }
+
+  .article-body h2 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 28px; font-weight: 500;
+    line-height: 1.3; margin: 2em 0 0.5em;
+    color: oklch(0.20 0.010 28);
+    letter-spacing: -0.01em;
+  }
+  .article-body blockquote {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: 22px; line-height: 1.5;
+    color: oklch(0.20 0.010 28);
+    margin: 2em 0;
+    padding-left: 24px;
+    border-left: 2px solid oklch(0.42 0.165 27);
+  }
+  .article-body blockquote p { margin: 0; }
+
+  .article-body figure { margin: 2em 0; }
+  .article-body figure img {
+    width: 100%; height: auto;
+    aspect-ratio: 16 / 9; object-fit: cover;
+    background: oklch(0.93 0.005 28);
+  }
+  .article-body figcaption {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-style: italic;
+    font-size: 13px; color: oklch(0.55 0.008 28);
+    margin-top: 12px; text-align: center;
+    letter-spacing: 0.02em;
+  }
+
+  .article-detail__end {
+    margin-top: 64px;
+    padding-top: 32px;
+    border-top: 1px solid oklch(0.88 0.005 28);
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 16px;
+  }
+  .article-detail__tags {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .article-detail__tag {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: oklch(0.55 0.008 28);
+    padding: 4px 10px;
+    border: 1px solid oklch(0.88 0.005 28);
+    border-radius: 999px;
+  }
+  .article-detail__back {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: oklch(0.20 0.010 28);
+    text-decoration: none;
+    border-bottom: 1px solid oklch(0.20 0.010 28);
+    padding-bottom: 2px;
+  }
+  .article-detail__back:hover {
+    color: oklch(0.42 0.165 27);
+    border-color: oklch(0.42 0.165 27);
+  }
+
+  /* Section divider between list and detail */
+  .journal-divider {
+    max-width: 1320px;
+    margin: 96px auto 64px;
+    padding: 0 24px;
+    text-align: center;
+  }
+  .journal-divider__line {
+    height: 1px;
+    background: oklch(0.88 0.005 28);
+    margin: 0 auto;
+    max-width: 120px;
+  }
+  .journal-divider__label {
+    font-family: "Helvetica Regular", "Inter", sans-serif;
+    font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase;
+    color: oklch(0.55 0.008 28); margin: 16px 0 0;
+  }
+
+  /* ====================================================================
+     6.  Lumina Liquid Glass footer  (verbatim, inherited)
+     ==================================================================== */
+  .liquid-glass {
+    background: rgba(255, 255, 255, 0.01);
+    background-blend-mode: luminosity;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: none;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  .liquid-glass::before {
+    content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1.4px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 20%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%, rgba(255,255,255,0.15) 80%, rgba(255,255,255,0.45) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
+  }
+  .footer__bg {
+    position: absolute; inset: 0; z-index: 0;
+    width: 100%; height: 100%; object-fit: cover;
+    opacity: 0.55;
+  }
+  .footer__glass {
+    position: absolute; inset: 0; z-index: 0;
+  }
+  .footer__content {
+    position: relative; z-index: 1;
+  }
+</style>
+</head>
+<body>
+
+<!-- A11Y skiplink -->
+<a href="#main" class="skiplink">Skip to main content</a>
+
+<!-- 1. Global Sticky Header  (PHASE 3.5 chassis) -->
+<header class="global-header" data-state="top" id="global-header">
+  <div class="global-header__inner">
+
+    <a href="p01-home.html" class="global-header__brand">LLCCRAFT</a>
+
+    <div class="global-header__actions">
+
+      <div class="global-header__lang">
+        <button class="global-header__lang-btn" id="lang-btn" type="button"
+                aria-haspopup="true" aria-expanded="false" aria-controls="lang-menu">
+          <span data-current-lang>EN</span>
+          <svg class="global-header__lang-caret" viewBox="0 0 10 10" aria-hidden="true">
+            <path d="M2 4l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <ul class="global-header__lang-menu" id="lang-menu" role="menu" aria-label="Language">
+          <li role="none"><button role="menuitem" data-lang="en" class="is-active">EN</button></li>
+          <li role="none"><button role="menuitem" data-lang="zh">中文</button></li>
+          <li role="none"><button role="menuitem" data-lang="fr">FR</button></li>
+          <li role="none"><button role="menuitem" data-lang="ja">日本語</button></li>
+        </ul>
+      </div>
+
+      <ul class="global-header__social" aria-label="Social">
+        <li><a href="#" aria-label="Instagram">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <rect x="2" y="2" width="12" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="8" cy="8" r="2.6" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="11.6" cy="4.4" r="0.7" fill="currentColor"/>
+          </svg>
+        </a></li>
+        <li><a href="#" aria-label="WeChat">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <ellipse cx="6" cy="7" rx="5" ry="4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <ellipse cx="11" cy="10" rx="3.5" ry="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="4.7" cy="6" r="0.45" fill="currentColor"/>
+            <circle cx="7.3" cy="6" r="0.45" fill="currentColor"/>
+            <circle cx="10.4" cy="9.5" r="0.35" fill="currentColor"/>
+          </svg>
+        </a></li>
+        <li><a href="#" aria-label="Weibo">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <ellipse cx="8" cy="8.5" rx="6" ry="4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="6" cy="9" r="0.4" fill="currentColor"/>
+            <circle cx="9" cy="8" r="0.4" fill="currentColor"/>
+          </svg>
+        </a></li>
+      </ul>
+
+      <div class="global-header__icons">
+        <button class="global-header__icon-btn" id="search-btn" type="button" aria-label="Search">
+          <svg viewBox="0 0 18 18" aria-hidden="true">
+            <circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M12 12l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <a href="p05-auth.html" class="global-header__icon-link" aria-label="Account">
+          <svg viewBox="0 0 18 18" aria-hidden="true">
+            <circle cx="9" cy="6.5" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M3 16c0-3 3-5 6-5s6 2 6 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </a>
+        <button class="global-header__icon-btn global-header__cart" id="cart-btn" type="button" aria-label="Cart">
+          <svg viewBox="0 0 18 18" aria-hidden="true">
+            <path d="M3 5h2l1.5 8h7l1.5-6H6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <circle cx="7.5" cy="15.5" r="1" fill="currentColor"/>
+            <circle cx="12.5" cy="15.5" r="1" fill="currentColor"/>
+          </svg>
+          
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- 2. Page header -->
+  <header class="journal-header">
+    <p class="journal-header__eyebrow">The LLCCRAFT Journal</p>
+    <h1 class="journal-header__title">Lorem Ipsum on porcelain craft</h1>
+    <p class="journal-header__subtitle">Dispatches from ateliers, kilns, and the slow science of fired earth</p>
+  </header>
+
+  <!-- 3. [F] Sticky horizontal filter bar  (NOT sidebar) -->
+  <div class="filter-bar" role="navigation" aria-label="Journal categories">
+    <div class="filter-bar__inner">
+      <span class="filter-bar__label">Filter</span>
+      <div class="filter-bar__options" role="tablist">
+        <button class="filter-pill is-active" role="tab" aria-selected="true" data-filter="all">All</button>
+        <button class="filter-pill" role="tab" aria-selected="false" data-filter="science">Lorem Ipsum &middot; Science</button>
+        <button class="filter-pill" role="tab" aria-selected="false" data-filter="appreciation">Lorem Ipsum &middot; Appreciation</button>
+        <button class="filter-pill" role="tab" aria-selected="false" data-filter="myth">Lorem Ipsum &middot; Myth</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. [L] Article list  (full-bleed, 1 featured + 2 in 1+2 grid) -->
+  <section class="journal-list" aria-label="Article list">
+
+    <!-- 4a. Featured article (21:9 cover, 1.4fr + 1fr layout) -->
+    <article class="article-featured">
+      <a href="#article-1" class="article-featured__cover" aria-label="Featured article cover">
+        <img src="https://picsum.photos/1600/686?random=30" alt="Lorem ipsum featured article cover" loading="lazy">
+      </a>
+      <div class="article-featured__body">
+        <p class="article-featured__category">Lorem Ipsum &middot; Science</p>
+        <h2 class="article-featured__title"><a href="#article-1" style="color: inherit; text-decoration: none;">The chemistry of sky-blue: how reduction firing turns earth into Ru</a></h2>
+        <p class="article-featured__excerpt">A slow walk through the kiln-side science of iron oxidation, the dance of carbon and oxygen, and the moment a piece of fired earth catches the colour of a clear morning.</p>
+        <div class="article-featured__meta">
+          <span>8 min read</span>
+          <span class="article-featured__meta-dot"></span>
+          <span>14 March 2026</span>
+          <span class="article-featured__meta-dot"></span>
+          <span>By the LLCCRAFT editorial desk</span>
+        </div>
+        <a href="#article-1" class="article-featured__read">Read essay</a>
+      </div>
+    </article>
+
+    <!-- 4b. 1+2 grid :  2 regular articles -->
+    <div class="article-grid">
+
+      <article class="article-card" id="article-2">
+        <a href="#" class="article-card__cover" aria-label="Article cover">
+          <img src="https://picsum.photos/800/450?random=31" alt="Lorem ipsum article 2 cover" loading="lazy">
+        </a>
+        <p class="article-card__category">Lorem Ipsum &middot; Appreciation</p>
+        <h3 class="article-card__title"><a href="#" style="color: inherit; text-decoration: none;">Reading a bowl: six small signs that mark a contemporary master</a></h3>
+        <p class="article-card__meta">6 min read &middot; 02 March 2026</p>
+      </article>
+
+      <article class="article-card" id="article-3">
+        <a href="#" class="article-card__cover" aria-label="Article cover">
+          <img src="https://picsum.photos/800/450?random=32" alt="Lorem ipsum article 3 cover" loading="lazy">
+        </a>
+        <p class="article-card__category">Lorem Ipsum &middot; Myth</p>
+        <h3 class="article-card__title"><a href="#" style="color: inherit; text-decoration: none;">The bowl that caught a meteor: a Tenmokus origin story retold</a></h3>
+        <p class="article-card__meta">5 min read &middot; 21 February 2026</p>
+      </article>
+
+      <article class="article-card" id="article-4">
+        <a href="#" class="article-card__cover" aria-label="Article cover">
+          <img src="https://picsum.photos/800/450?random=33" alt="Lorem ipsum article 4 cover" loading="lazy">
+        </a>
+        <p class="article-card__category">Lorem Ipsum &middot; Science</p>
+        <h3 class="article-card__title"><a href="#" style="color: inherit; text-decoration: none;">Why Ru ware cracks at 3%: the secret number of the celadon glaze</a></h3>
+        <p class="article-card__meta">7 min read &middot; 11 February 2026</p>
+      </article>
+
+      <article class="article-card" id="article-5">
+        <a href="#" class="article-card__cover" aria-label="Article cover">
+          <img src="https://picsum.photos/800/450?random=34" alt="Lorem ipsum article 5 cover" loading="lazy">
+        </a>
+        <p class="article-card__category">Lorem Ipsum &middot; Appreciation</p>
+        <h3 class="article-card__title"><a href="#" style="color: inherit; text-decoration: none;">The ten-thousand-bowl problem: a small manifesto on slow collecting</a></h3>
+        <p class="article-card__meta">4 min read &middot; 30 January 2026</p>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- divider -->
+  <div class="journal-divider" aria-hidden="true">
+    <div class="journal-divider__line"></div>
+    <p class="journal-divider__label">Featured Essay</p>
+  </div>
+
+  <!-- 5. [D] Article detail  (single-column,  65ch,  1.8 leading) -->
+  <article class="article-detail" id="article-1">
+    <div class="article-detail__cover">
+      <img src="https://picsum.photos/1600/686?random=30" alt="Lorem ipsum article cover" loading="lazy">
+    </div>
+
+    <div class="article-detail__inner">
+      <div class="article-detail__meta-row">
+        <span class="article-detail__category">Lorem Ipsum &middot; Science</span>
+        <span class="article-detail__meta-dot"></span>
+        <span>14 March 2026</span>
+        <span class="article-detail__meta-dot"></span>
+        <span>8 min read</span>
+      </div>
+
+      <h1 class="article-detail__title">The chemistry of sky-blue: how reduction firing turns earth into Ru</h1>
+      <p class="article-detail__subtitle">A slow walk through the kiln-side science of iron oxidation, the dance of carbon and oxygen, and the moment a piece of fired earth catches the colour of a clear morning.</p>
+
+      <div class="article-detail__byline">
+        <span>By</span>
+        <span class="article-detail__author">the LLCCRAFT editorial desk</span>
+      </div>
+
+      <div class="article-body">
+        <p>The colour of Ru ware is famously &mdash; and infuriatingly &mdash; impossible to photograph. What looks like a soft sky-blue on a still morning shifts toward grey-green in a northern light, and toward almost nothing under the photographer&rsquo;s flash. The reason is not mood or pigment. The reason is iron.</p>
+
+        <p>A Ru glaze carries, by weight, between one and three per cent of iron oxide. That tiny fraction is the entire colour budget of the piece. The rest is silence: feldspar, quartz, a little clay, and a small dose of bone ash. The glaze is a near-colourless liquid before it enters the kiln.</p>
+
+        <h2>The reduction moment</h2>
+
+        <p>What happens inside the kiln is one of the most studied and least reproducible reactions in ceramics. At roughly 1,250 degrees Celsius, the kiln atmosphere is deliberately starved of oxygen. The burner is throttled. Smoke curls out. The flame turns from a clean blue to a soft, sooty orange.</p>
+
+        <p>In that starved atmosphere, the iron in the glaze is forced to give up some of its oxygen. The compound that forms is not the bright orange of common rust; it is a reduced form &mdash; a quieter cousin, magnetite &mdash; that scatters light in a particular way. To a human eye, that way looks like the colour of a clear morning after rain.</p>
+
+        <blockquote>
+          <p>The kiln is not a tool that produces sky-blue. The kiln is a question, asked in fire, that the iron in the glaze is sometimes willing to answer.</p>
+        </blockquote>
+
+        <figure>
+          <img src="https://picsum.photos/1200/675?random=35" alt="Lorem ipsum kiln cross-section illustration" loading="lazy">
+          <figcaption>Kiln cross-section during the reduction phase. The flame is starved of oxygen, the iron in the glaze gives up some of its own, and a particular chemistry becomes possible.</figcaption>
+        </figure>
+
+        <h2>Why three per cent</h2>
+
+        <p>Below one per cent, the glaze fires to a clean ivory with no colour. Above three per cent, the surface becomes muddy, then almost black, then metallically shiny in ways that betray the iron rather than refining it. The window between one and three is the Ru window. The window is also surprisingly narrow on the way up: a single per cent more iron and the bowl is no longer a Ru bowl. It is a black-burnished iron-stone.</p>
+
+        <p>This is why a contemporary master can fire a kiln for ten years and still set aside a third of the pieces that come out. The colour is not painted on. It is the answer to a question that is asked in fire, in a piece of earth, every single time.</p>
+
+        <h2>What the buyer is buying</h2>
+
+        <p>When a contemporary Ru bowl sits on a low wooden table in a Belgravia flat, the colour it holds is the residue of a particular chain of decisions: which iron, which particle size, which glaze recipe, which kiln, which stoke, which minute of which day. There is no batch. There is no repeat.</p>
+
+        <p>This is also why provenance is not paperwork in this field. Provenance is the chain of decisions. To own a Ru bowl is to inherit a small piece of one particular conversation between a maker and a kiln.</p>
+
+        <p>And on a still morning, the bowl will catch the light, and the colour will look, briefly, like the sky it was named after.</p>
+      </div>
+
+      <footer class="article-detail__end">
+        <div class="article-detail__tags">
+          <span class="article-detail__tag">Ru ware</span>
+          <span class="article-detail__tag">Reduction firing</span>
+          <span class="article-detail__tag">Iron oxide</span>
+          <span class="article-detail__tag">Celadon</span>
+        </div>
+        <a href="#main" class="article-detail__back">Back to journal</a>
+      </footer>
+    </div>
+  </article>
+
+</main>
+
+<!-- ====================================================================
+     Lumina Liquid Glass footer  (P-01 v0.4.1.5 100% 复用 verbatim)
+     ==================================================================== -->
+<footer class="relative overflow-hidden" style="isolation: isolate; border-radius: 0; margin-top: 96px; min-height: 480px;">
+
+  <video class="footer__bg" autoplay loop muted playsinline>
+    <source src="{{hero.video.url}}" data-placeholder="hero-video.mp4" type="video/mp4">
+  </video>
+
+  <div class="liquid-glass footer__glass"></div>
+
+  <div class="footer__content" style="padding: 96px 24px 32px;">
+    <div class="max-w-wide mx-auto" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 48px;">
+      <div>
+        <h3 class="font-serif text-2xl mb-4" style="font-family: 'Cormorant Garamond', serif; font-weight: 500;">LLCCRAFT</h3>
+        <p class="text-sm" style="color: oklch(0.20 0.010 28); opacity: 0.7;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor.</p>
+      </div>
+      <div>
+        <h4 class="text-xs uppercase mb-4" style="letter-spacing: 0.18em; color: oklch(0.55 0.008 28);">Collections</h4>
+        <ul style="list-style: none; padding: 0; margin: 0;">
+          <li style="margin-bottom: 8px;"><a href="p01-home.html" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Contemporary Ru ware</a></li>
+          <li style="margin-bottom: 8px;"><a href="p01-home.html" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Jingdezhen blue-and-white</a></li>
+          <li style="margin-bottom: 8px;"><a href="#" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Reserved &amp; Commission</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs uppercase mb-4" style="letter-spacing: 0.18em; color: oklch(0.55 0.008 28);">Atelier</h4>
+        <ul style="list-style: none; padding: 0; margin: 0;">
+          <li style="margin-bottom: 8px;"><a href="#" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Master Liu</a></li>
+          <li style="margin-bottom: 8px;"><a href="#" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Master Chen</a></li>
+          <li style="margin-bottom: 8px;"><a href="#" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Provenance</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-xs uppercase mb-4" style="letter-spacing: 0.18em; color: oklch(0.55 0.008 28);">Acquisition</h4>
+        <ul style="list-style: none; padding: 0; margin: 0;">
+          <li style="margin-bottom: 8px;"><a href="p02-pdp.html" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Direct purchase</a></li>
+          <li style="margin-bottom: 8px;"><a href="p02-pdp.html" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Private inquiry</a></li>
+          <li style="margin-bottom: 8px;"><a href="#" style="color: oklch(0.20 0.010 28); text-decoration: none; font-size: 14px;">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="max-w-wide mx-auto" style="margin-top: 64px; padding-top: 24px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; border-top: 1px solid oklch(0.20 0.010 28 / 0.1);">
+      <p class="text-xs" style="color: oklch(0.55 0.008 28);">&copy; 2026 LLCCRAFT &middot; Lorem ipsum</p>
+      <p class="text-xs" style="color: oklch(0.55 0.008 28);">Privacy &middot; Terms &middot; Contact</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* ==========================================================================
+     P-03 Journal JS  v0.6.0
+     ==========================================================================
+     Modules:
+       1. Sticky nav scroll
+       2. Filter pill tab-switch  (skeleton: visual only, no real filter)
+     ========================================================================== */
+
+  (function () {
+    /* 1. Global Sticky Header  (PHASE 3.5 chassis) */
+    const header = document.getElementById('global-header');
+    if (header) {
+      let lastY = 0;
+      const onScroll = () => {
+        const y = window.scrollY;
+        const dir = y > lastY ? 'down' : 'up';
+        lastY = y;
+        if (y < 80) {
+          header.dataset.state = 'top';
+          header.classList.remove('is-scrolled-down', 'is-scrolled-up');
+        } else {
+          header.dataset.state = dir;
+          header.classList.toggle('is-scrolled-down', dir === 'down');
+          header.classList.toggle('is-scrolled-up', dir === 'up');
+        }
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }
+
+    /* 1b. Lang dropdown */
+    const langBtn  = document.getElementById('lang-btn');
+    const langMenu = document.getElementById('lang-menu');
+    if (langBtn && langMenu) {
+      const toggle = (open) => {
+        const isOpen = open ?? !langMenu.classList.contains('is-open');
+        langMenu.classList.toggle('is-open', isOpen);
+        langBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      };
+      langBtn.addEventListener('click', (e) => { e.stopPropagation(); toggle(); });
+      langMenu.addEventListener('click', (e) => {
+        const item = e.target.closest('[data-lang]');
+        if (item) {
+          langMenu.querySelectorAll('button').forEach((b) => b.classList.remove('is-active'));
+          item.classList.add('is-active');
+          const cur = langBtn.querySelector('[data-current-lang]');
+          if (cur) cur.textContent = item.textContent;
+          toggle(false);
+        }
+      });
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.global-header__lang')) toggle(false);
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && langMenu.classList.contains('is-open')) {
+          toggle(false);
+          langBtn.focus();
+        }
+      });
+    }
+  })();
+
+  (function () {
+    /* 2. Filter pill tab-switch  (skeleton visual) */
+    const pills = document.querySelectorAll('.filter-pill');
+    pills.forEach((pill) => {
+      pill.addEventListener('click', () => {
+        pills.forEach((p) => {
+          p.classList.toggle('is-active', p === pill);
+          p.setAttribute('aria-selected', p === pill ? 'true' : 'false');
+        });
+        /* skeleton : no real article filtering */
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>
