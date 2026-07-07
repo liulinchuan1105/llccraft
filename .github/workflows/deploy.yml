@@ -33,6 +33,38 @@ jobs:
           node-version: "22"
           check-latest: false
 
+      - name: MD5 ledger gate (云端防线 · 仅当本地账本 100% 匹配才放行)
+        run: |
+          set -e
+          LEDGER=".impeccable/config.json"
+          THEME_DIR="$THEME_SRC"
+          echo "── Ledger gate check ──"
+          # Extract MD5s from ledger (parse "file" + "md5" pairs)
+          ledger_md5s=$(python3 -c "
+          import json, sys
+          with open('$LEDGER') as f: cfg = json.load(f)
+          for p in cfg.get('pages', []):
+              fn = p.get('file', '')
+              md5 = p.get('md5', '')
+              if fn and md5: print(f'{fn} {md5}')
+          ")
+          fail=0
+          while IFS=' ' read -r fn expected_md5; do
+            [ -z "$fn" ] && continue
+            actual_md5=$(md5sum "$THEME_DIR/$fn" 2>/dev/null | awk '{print $1}')
+            if [ "$actual_md5" != "$expected_md5" ]; then
+              echo "  ::error::$fn  ledger=$expected_md5  disk=$actual_md5"
+              fail=1
+            else
+              echo "  ok  $fn  $actual_md5"
+            fi
+          done <<< "$ledger_md5s"
+          if [ "$fail" -ne 0 ]; then
+            echo "::error::MD5 ledger gate FAILED — disk drift detected"
+            exit 1
+          fi
+          echo "── Ledger gate PASS · 8/8 MD5 aligned · deployment authorized ──"
+
       - name: Build theme
         run: |
           set -e
