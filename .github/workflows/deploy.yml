@@ -113,6 +113,20 @@ jobs:
           fi
           echo "rsync OK"
 
+      - name: Sync 9 static HTML files (P0 紧急异常修复 2026-07-08)
+        run: |
+          set -e
+          # 9 HTML 静态页面(匠人工作室全站手艺坊化改造)必须同步到 ECS 主题目录
+          # 之前 deploy.yml 只同步 build/assets/main.css,导致线上"无米下锅"
+          # 这次新增步骤同步 9 HTML(包括 p01-home / p02-pdp / p03-journal / p04-about / p05-auth / p06-collection / p07-checkout / p09-account / p10-compliance)
+          echo "── Syncing 9 static HTML files to ECS ──"
+          rsync -avz --mkpath \
+            -e "ssh -p $ECS_PORT -i ~/.ssh/llccraft_deploy -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+            --include='p0[1-9]*.html' --include='p10*.html' --exclude='*' \
+            "$THEME_SRC/" \
+            "${ECS_USER}@${ECS_HOST}:/var/www/llccraft/wp-content/themes/llccraft-child/" 2>&1 | tail -15
+          echo "── 9 HTML sync done ──"
+
       - name: Verify HTTP 200
         run: |
           set -e
