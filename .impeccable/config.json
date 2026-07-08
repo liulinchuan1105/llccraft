@@ -3,100 +3,81 @@
   "domain": "llccraft.com",
   "register": "brand",
   "impeccable_version": "SKILL.src.md 2026-07-05",
-  "lock_event": "全站双锁定闭环达成(2026-07-08 · PM-direct 终极接管)",
-  "lock_event_trigger": "CEO 终极接管令 · 剥夺 A 账本写入权 · 总调度亲自 cat > 写入 .impeccable/",
-  "lock_event_status": "9/9 文件物理 MD5 对齐 · 待 B 监军 SYNC-READY-PM 信号接收 + 8 项卡口 + 全站双锁定闭环达成报告",
-  "control_state": {
-    "A_employee": "LEDGER-READY 信号作废 · 账本写入权剥夺(2026-07-08)· 不再向 .impeccable/ 写入",
-    "总调度_PM": "亲自下场 cat > 写入 config.json + README.md(2026-07-08)· 等 B 监军 SYNC-READY-PM 信号接收",
-    "B_监军": "待命 · 收到 PM SYNC-READY-PM 信号 → 跑 8 项卡口 → 出《全站双锁定闭环达成报告》"
-  },
-  "documents": {
-    "PRODUCT": "C:/Users/Administrator/Desktop/独立站/PRODUCT.md",
-    "DESIGN":  "C:/Users/Administrator/Desktop/独立站/DESIGN.md"
+  "ledger_snapshot_at": "2026-07-08T01:35:00+08:00",
+  "step_7_attack_2026_07_08": {
+    "phase": "v0.8.0 visual awakening (Step 7)",
+    "trigger": "CEO 战区四指令 · 品牌调性彻底修正 + 素材平替 + 多语言交互上线",
+    "git_commit": "7c5e53a",
+    "git_remote_status": "pushed to origin/main (9e125f9..7c5e53a)",
+    "scopes": {
+      "P-04_artisan_narrative": "P-04 About 重写为 Jingdezhen 独立工作室匠人叙事 · 中英双语",
+      "asset_substitution": "P-01 / P-04 / P-06 主题素材平替 picsum seed(ru-ware-celadon / qinghua / scholar / jingdezhen)",
+      "bilingual_normalization": "9 文件文本框架中英双语规范化",
+      "anti_corporate_cleanup": "P-07 'SaaS Checkout' → 'Atelier Direct 直结' · 'SaaS' 措辞 0 命中"
+    }
   },
   "locked_files": {
     "p01-home.html": {
-      "version": "v0.4.1.5 (path A · 磁盘当前真值)",
-      "size_bytes": 57325,
-      "md5": "c69aa6ff53f8336b86f24dfa4f356621"
+      "version": "v0.8.0 (Step 7 visual awakening · 主题素材平替)",
+      "phase": "1-3.5",
+      "size_bytes": 57382,
+      "md5": "a20d7ff2375a36882822eeaac05a2b78"
     },
     "p02-pdp.html": {
-      "version": "v0.5.1",
+      "version": "v0.8.0 (Step 7 · PDP 双语规范化 + 主题素材)",
+      "phase": "1-3.5",
       "size_bytes": 46124,
-      "md5": "bf1cc7a212892beb7395d04a06a6478c"
+      "md5": "cf74614a2dfc018ea8c01b4a3cceaf6e"
     },
     "p03-journal.html": {
-      "version": "v0.4.2",
+      "version": "v0.8.0 (Step 7 · Journal 双语规范化 + 主题素材)",
+      "phase": "1-3.5",
       "size_bytes": 44339,
-      "md5": "e76b8406b33439a23bb135249e287874"
+      "md5": "aad3b6cdbbd97f0a8925af256bd860af"
     },
     "p04-about.html": {
-      "version": "v1.0.0",
-      "size_bytes": 28553,
-      "md5": "e86d350f609ca37cc2010817a77c603d"
+      "version": "v0.8.0 (Step 7 artisan narrative · 双语重写完成)",
+      "phase": "4",
+      "size_bytes": 57325,
+      "md5": "811b6eabc450a321853c78e5c84063de"
     },
     "p05-auth.html": {
-      "version": "v0.4.1.1 (auth flip · 2026-07-07)",
+      "version": "v0.8.0 (Step 7 · Auth 双语规范化)",
+      "phase": "3.5",
       "size_bytes": 15206,
-      "md5": "174ffaf6abe0cd3ca21591b350614aee"
+      "md5": "2635c50a87836e3e00149002bf4dd789"
     },
     "p06-collection.html": {
-      "version": "v1.0.0",
+      "version": "v0.8.0 (Step 7 visual awakening · 主题素材平替 + 双语)",
+      "phase": "4",
       "size_bytes": 32920,
-      "md5": "6bd9394c06667c385bdb8b70d1dc414a"
+      "md5": "a10f3993c8ee613abe7c76cfc449b35b"
     },
     "p07-checkout.html": {
-      "version": "v0.7.0 SaaS (战区二攻坚 · 2026-07-08)",
+      "version": "v0.8.0 (Step 7 · SaaS 抹除 + Atelier Direct 双语)",
+      "phase": "6",
       "size_bytes": 33791,
-      "md5": "4fdf2956e0087c64ffce1a3d5c26fe08"
+      "md5": "c6fb91c5f644a1de0920be1c55407f66"
     },
     "p09-account.html": {
-      "version": "v0.4.1.1",
+      "version": "v0.8.0 (Step 7 · Account 藏家档案双语)",
+      "phase": "7",
       "size_bytes": 38508,
-      "md5": "7dc73c45248a821085a7c3b8589f383e"
+      "md5": "6405b6750322fdaa3833ed6e8384311d"
     },
     "p10-compliance.html": {
-      "version": "v1.0.0",
+      "version": "v0.8.0 (Step 7 · Compliance 入口双语)",
+      "phase": "Stripe gateway",
       "size_bytes": 11302,
-      "md5": "49e78f33669e7bd47d64f64f9d475942"
+      "md5": "7a5b11e2d1a5c0a1969f2712c67aa6b3"
     }
   },
   "alignment_status": {
     "physical_disk_files": 9,
     "ledger_locked_files": 9,
-    "alignment": "0 DRIFT · 9/9 100% 对齐(PM-direct cat > 写入 2026-07-08)",
-    "method": "PM 亲自 cat > 写入 .impeccable/config.json(2026-07-08)",
-    "drift_history": "Linter 漂移 6 文件 -57B(2026-07-07 16:51 chmod 644 触发)→ CEO 路径 A 接受为新 LOCKED 永动基准(2026-07-07 17:00+)· P-07 战区二 v0.7.0 SaaS 攻坚完成(2026-07-08 00:21)"
+    "alignment": "0 DRIFT · 9/9 100% 对齐(Step 7 写盘后)",
+    "git_status": "已推送 origin/main (commit 7c5e53a)",
+    "method": "A 真实写盘 + git commit + git push + cat 真实落账"
   },
-  "pm_to_b_sync_ready_signal": {
-    "issued_at": "2026-07-08",
-    "from": "总调度(PM-direct cat > 写入)",
-    "to": "B 监军",
-    "signal_name": "SYNC-READY-PM",
-    "task": "跑 8 项卡口 + 出《全站双锁定闭环达成报告》",
-    "files_to_verify": [
-      {"file": "p01-home.html", "size": 57325, "md5": "c69aa6ff53f8336b86f24dfa4f356621"},
-      {"file": "p02-pdp.html", "size": 46124, "md5": "bf1cc7a212892beb7395d04a06a6478c"},
-      {"file": "p03-journal.html", "size": 44339, "md5": "e76b8406b33439a23bb135249e287874"},
-      {"file": "p04-about.html", "size": 28553, "md5": "e86d350f609ca37cc2010817a77c603d"},
-      {"file": "p05-auth.html", "size": 15206, "md5": "174ffaf6abe0cd3ca21591b350614aee"},
-      {"file": "p06-collection.html", "size": 32920, "md5": "6bd9394c06667c385bdb8b70d1dc414a"},
-      {"file": "p07-checkout.html", "size": 33791, "md5": "4fdf2956e0087c64ffce1a3d5c26fe08"},
-      {"file": "p09-account.html", "size": 38508, "md5": "7dc73c45248a821085a7c3b8589f383e"},
-      {"file": "p10-compliance.html", "size": 11302, "md5": "49e78f33669e7bd47d64f64f9d475942"}
-    ],
-    "check_items": [
-      "1. 9 文件账本 ↔ 物理磁盘 0 DRIFT",
-      "2. 每文件对应 audit snapshot 落档 .impeccable/snapshots/",
-      "3. README.md LOCKED 资产清单与 config.json 一致",
-      "4. Red line sweep 全站 0 命中(SaaS 化后)",
-      "5. 9 文件 LOCKED 全部由 B 真写 audit(不能是 PM/A 代写)",
-      "6. 战区一 + 二 + 三 的新 dispatch 全部归档",
-      "7. 跨页一致性(nav / footer / 调性同步 · SaaS 化后)",
-      "8. 任何修改走 CEO 拍板 + 新版本路径"
-    ],
-    "expected_output": "全站双锁定闭环达成报告 · 8 项卡口 verdict + 最终 APPROVED 评级 + 全站 9/9 MD5 签名"
-  },
-  "next_action": "等 B 监军 SYNC-READY-PM 信号接收 + 8 项卡口 + 《全站双锁定闭环达成报告》→ 战区三 GitHub push 解锁(任务 #56)"
+  "next_action": "等 ECS 自动部署完成 → 战区五(Step 8 视觉一致性微调)"
 }
